@@ -4,10 +4,15 @@ var path = require('path');
 var mongoose =require('mongoose');
 var  fs =require('fs');
 var app = express();
-var port = 3003;
+var bodyParser = require('body-parser');
+var port = 3000;
 var Photo = require('./Schema');
 var base64 = require('base-64');
+var User = require('./userSchema');
 mongoose.connect('mongodb://127.0.0.1:27017/Profile');
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.use(express.static(path.join(__dirname, 'uploads')));
 // headers and content type
@@ -90,9 +95,6 @@ app.post("/upload", upload.array("uploads[]", 12), function (req, res) {
             } else{
           
               console.log('photo is '+ photo);
-          
-          
-          
           var base64str = base64_encode(photo.url);
           
           res.statusCode = 200;
@@ -103,24 +105,65 @@ app.post("/upload", upload.array("uploads[]", 12), function (req, res) {
                 "photodata": base64str
                 
               });
-          
-          
             }
-          
-          
           });
-  
-  
     }
   });
 }else{
 console.log('path null');
 
-
 }
+});
+
+//register api
+app.post('/regsiter',function(req,res){
+  
+  console.log('in the api');
+  var firstname =req.body.firstname; 
+  var lastname = req.body.lastname;       
+  var username = req.body.username;
+  var email = req.body.email;
+  var password = req.body.password;
+  var confirmpassword = req.body.confirmpassword;
+  var usertype = req.body.usertype;
+  var spcatagory = req.body.spcatagory;
+         
+            var newUser = new User();
+            newUser.firstname =firstname;
+            newUser.lastname = lastname;
+            newUser.username = username;
+            newUser.email = email;
+            newUser.password =password;
+            newUser.usertype = usertype;
+            newUser.spcatagory = spcatagory;
+   
+newUser.save(function(err,result){
+
+          if(err){
+              res.statusCode =500;
+              res.json({
+
+                  "message":"register err"
+
+
+              });
+
+
+          }else{
+            statusCode =200;
+            res.json({
+
+              "message":"register success"
+
+            });
 
 
 
+          }
+
+
+
+});
 
 
 });

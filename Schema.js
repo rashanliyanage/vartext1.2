@@ -12,3 +12,6 @@ url:String
   var  Photo = mongoose.model('picture',ItemSchema);
 
   module.exports =Photo;
+ 
+ 
+ 
