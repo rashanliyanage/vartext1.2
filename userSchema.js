@@ -5,12 +5,11 @@ var userSchema = mongoose.Schema(
 
         firstname: String,
         lastname:String,
-        usernaem:String,
+        username:String,
         email:String,
         password:String,
-        confirmpassword:String,
         usertype:String,
-        spcatagory:String,
+        spCatagory:String,
 
 
     }
