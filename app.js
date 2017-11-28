@@ -8,7 +8,7 @@ var mongoose = require('mongoose');
 var users = require('./routes/users');
 var app = express();
 var config =require('./config/user');
-
+var userProfile =require('./routes/userProfile');
             mongoose.connect(config.database);
             mongoose.connection.on('connected',function(){
                 console.log('connected');
@@ -26,8 +26,9 @@ app.use(bodyparser.json());
 app.use(passport.initialize());
 app.use(passport.session());
 require('./config/passport')(passport);
-app.use('/api',users);
-app.get('/',function(req,res){});
+app.use('/api',users.router);
+app.use('/api/profile',userProfile);
+
 
 app.listen(port,function(){
 console.log('server starting port'+port);

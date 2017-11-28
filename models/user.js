@@ -8,11 +8,11 @@ var userSchema = mongoose.Schema(
         firstname:{type: String},
         lastname:{type: String},
         username:{type: String},
-        email:{type: String ,required:true},
-        password:{type: String ,required:true},
+        email:{type: String },
+        password:{type: String },
         usertype:{type: String },
         spCatagory:{type: String},
-
+        url:{type: String}
 
     }
   );
@@ -26,6 +26,7 @@ var userSchema = mongoose.Schema(
 
 
  };
+ 
 
  module.exports.getUserByUsername = function(username,callback){
     const query = {username:username};   
@@ -46,6 +47,7 @@ var userSchema = mongoose.Schema(
     })
 
  }
+ 
 
  module.exports.comparePassword =function(candidatePassword,actualPassword,callback){
 console.log(candidatePassword);
@@ -60,3 +62,4 @@ throw err
 });
     
  }
+ 

@@ -4,6 +4,13 @@ var User = require('../models/user');
 var passport = require('passport');
 var jwt = require('jsonwebtoken');
 var config =require('../config/user');
+
+var userArray=[];
+module.exports.userdetail = userdetail ={
+    id:'',
+    name:'rashan',
+    profilepicture:'',
+}
 router.post('/register',function(req,res){
 console.log('in the register');
     var newUser = new User();
@@ -18,7 +25,6 @@ console.log('in the register');
         var password = req.body.password;
         var usertype = req.body.usertype;
         
-               
                  
                   newUser.firstname =firstname;
                   newUser.lastname = lastname;
@@ -44,6 +50,7 @@ console.log('in the register');
                 newUser.usertype = usertype;
                 newUser.spCatagory =spCatagory;
             }
+            
             User.addUser(newUser,function(err,user){
 
                     if(err){
@@ -81,7 +88,7 @@ router.post('/authenticate',function(req,res,next){
                   });
             
                  }else{ 
-            
+                    
                     User.getUserByUsername(username,function(err,user){
            console.log(user);
             if(err){
@@ -115,6 +122,7 @@ router.post('/authenticate',function(req,res,next){
                         }
 
                     });
+                    this.userdetail.id =user._id;
                 }else{
                     return res.json({success:false,message:'wrong password'});
 
@@ -130,4 +138,4 @@ router.get('/profile', passport.authenticate('jwt', {session:false}),function(re
     res.json({user: req.user});
   });
 
-module.exports =router;
+module.exports.router =router;
