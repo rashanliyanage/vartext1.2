@@ -40,7 +40,7 @@ var upload = multer({ storage: storage });
 router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,res){
     console.log('in the upload api');
     console.log('path'+path2);
-   console.log('id is  '+userDetail.userdetail.id);
+   console.log(userDetail.userdetail.id);
     var newUser =new User();
     if(path2!=null){
             
@@ -97,6 +97,45 @@ router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,
     }
    
     
+
+});
+
+router.get('/getProfilePicture',function(req,res){
+  console.log('in the get apofile picture api');
+  User.findById(userDetail.userdetail.id,function(err,user){
+
+            if(err){
+                console.log('get profile picture err');
+                statusCode=404;
+                res.json({
+                  success:true,
+                  "status": "unsuccess",
+                  "message": "not find profile picture",
+
+
+                });
+
+              
+            }else if(user.url==undefined){
+              console.log('1st user');
+            }else {
+              console.log('not gettin err on get profile picture');
+
+              var base64str = base64_encode(user.url);
+
+                          
+                    res.statusCode = 200;
+                    res.json({
+                        success:true,
+                      "status": "success",
+                      "message": "fourd profile picture",
+                      
+                      photodata: base64str
+                      
+                    });
+            }
+
+  })
 
 });
 
