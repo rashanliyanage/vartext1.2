@@ -11,16 +11,23 @@ var userDetail =require('./users');
 var multer = require('multer');
 var  fs =require('fs');
 var path2;
+
+
+
+
 var storage = multer.diskStorage({
       destination: function (req, file, cb) {
           cb(null, './routes/picture/');
-          console.log('helo'+file);
+          //console.log(file);
       },  filename: function (req, file, cb) {
         cb(null, file.originalname);
-        console.log('origina'+file.originalname);
+        //console.log('origina'+file.originalname);
         var path1 =   './routes/picture/' + file.originalname;
+     
+       
+        
         path2=path1;
-        console.log('path hii'+path2);
+       //console.log('path hii'+path2);
       }
     });
 
@@ -31,15 +38,16 @@ var upload = multer({ storage: storage });
 
         function base64_encode(file) {  //read imge file
         // read binary data
-        console.log(file);
+       // console.log(file);
         var bitmap = fs.readFileSync(file);
         // convert binary data to base64 encoded string
         return new Buffer(bitmap).toString('base64');
         }
 
 router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,res){
-    console.log('in the upload api');
-    console.log('path'+path2);
+   // console.log('in the upload api');
+   // console.log('path'+path2);
+   
    console.log(userDetail.userdetail.id);
     var newUser =new User();
     if(path2!=null){
@@ -47,7 +55,7 @@ router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,
             newUser.url=path2;
       
     
-            User.findOneAndUpdate({_id:userDetail.userdetail.id}, {$set: {url:path2}},function(err,result){
+            User.findOneAndUpdate({_id:userDetail.userdetail.id}, {$set: {'profileData.profileurl':path2}},function(err,result){
                 if(err){
                 console.log(err);
                 res.sendStatus=500;
@@ -64,7 +72,7 @@ router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,
     
     
     
-      User.findOne({url:path2},function(err,photo){
+      User.findOne({'profileData.profileurl':path2},function(err,photo){
       
             if(err){
         res.statusCode = 404;
@@ -76,7 +84,7 @@ router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,
         console.log('photo err');
       } else{
         console.log('photo is '+ photo);
-    var base64str = base64_encode(photo.url);
+    var base64str = base64_encode(photo.profileData.profileurl);
     
         res.statusCode = 200;
         res.json({
@@ -100,6 +108,8 @@ router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,
 
 });
 
+
+
 router.get('/getProfilePicture',function(req,res){
   console.log('in the get apofile picture api');
   User.findById(userDetail.userdetail.id,function(err,user){
@@ -116,12 +126,12 @@ router.get('/getProfilePicture',function(req,res){
                 });
 
               
-            }else if(user.url==undefined){
+            }else if(user.profileData.profileurl==undefined){
               console.log('1st user');
             }else {
               console.log('not gettin err on get profile picture');
 
-              var base64str = base64_encode(user.url);
+              var base64str = base64_encode(user.profileData.profileurl);
 
                           
                     res.statusCode = 200;
@@ -138,6 +148,9 @@ router.get('/getProfilePicture',function(req,res){
   })
 
 });
+
+
+
 
 
 module.exports=router;

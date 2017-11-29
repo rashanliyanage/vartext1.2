@@ -12,8 +12,10 @@ var userSchema = mongoose.Schema(
         password:{type: String },
         usertype:{type: String },
         spCatagory:{type: String},
-        url:{type: String}
-
+        profileData:{
+            profileurl:{type: String},
+            advertiesment:[]
+        }
     }
   );
 
