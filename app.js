@@ -9,7 +9,8 @@ var users = require('./routes/users');
 var app = express();
 var config =require('./config/user');
 var userProfile =require('./routes/userProfile');
-var serviceProviderPage=require('./routes/serviceProvider');
+var serviceProviderPage_1=require('./routes/serviceProvider');
+var serviceProviderPage_2 =require('./routes/serviceProvider2');
             mongoose.connect(config.database);
             mongoose.connection.on('connected',function(){
                 console.log('connected');
@@ -29,7 +30,8 @@ app.use(passport.session());
 require('./config/passport')(passport);
 app.use('/api',users.router);
 app.use('/api/profile',userProfile);
-app.use('/api/add/',serviceProviderPage.router);
+app.use('/api/add/',serviceProviderPage_1.router);
+app.use('/api/add_2/',serviceProviderPage_2.router2);
 
 
 app.listen(port,function(){

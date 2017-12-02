@@ -10,6 +10,7 @@ var  fs =require('fs');
 
 var path2;
 var imagesPath=[];
+var images =[];
 var i=0;
 
 
@@ -21,7 +22,8 @@ var storage = multer.diskStorage({
       },  filename: function (req, file, cb) {
         cb(null, file.originalname);
         //console.log('origina'+file.originalname);
-        var path1 =   './routes/picture/' + file.originalname;
+        var path1 =   './routes/Add/' + file.originalname;
+        var path2 = path1;
       imagesPath.push(path1);
        
         
@@ -55,6 +57,7 @@ var storage = multer.diskStorage({
             User.findByIdAndUpdate({_id:userDetail.userdetail.id},
                 {$addToSet:{'profileData.advertiesment':imagesPath[i]}},false,function(err,result){
                         if(err){
+                            res.statusCode=500;
                             res.json({
                                 success:false,
                                 'status':"can,t add "
@@ -68,8 +71,11 @@ var storage = multer.diskStorage({
 
                 console.log('this is'+imagesPath[i]);
             }
+            imagesPath.length=0;
+
+            getAllAdd(res,userDetail.userdetail.id);
        }
-       imagesPath.length=0;
+       
 
 
 
@@ -77,6 +83,88 @@ var storage = multer.diskStorage({
     });
 
 
+    router.get('/getAdd',function(req,res){
+        console.log('in the getadd api');
+        getAllAdd(res,userDetail.userdetail.id);
+
+
+    });
+
+    var getAllAdd =function(res,id){
+
+        User.findById({_id:id},function(err,user){
+
+                if(err){
+                    res.statusCode =500;
+                    console.log('err of the get all add');
+                    statusco
+                    res.json({
+                        success:false,
+                        status:"err",
+                        message:" cant get all add"
+
+
+                    });
+
+                }else{
+
+                    
+                    for(i=0;i<user.profileData.advertiesment.length;i++){
+                        var base64str = base64_encode(user.profileData.advertiesment[i]);
+                        images.push(base64str);
+                        imagesPath.push(user.profileData.advertiesment[i]);
+                        //console.log('this is add add in arry'+imagesPath[i]);
+
+                    }
+                    res.statusCode =200;
+                    res.json({
+
+                        success:false,
+                        status:"succes",
+                        id:user._id,
+                        imgArray:images,
+                        imgLinkArray:imagesPath
+
+
+                    });
+                    //console.log(imagesPath);
+                    imagesPath.length=0;
+                    images.length =0;
+
+                }
+
+
+        });
+    }
+
+    router.post('/deleteAddverticement',function(req,res){
+        console.log('in the delete');
+        var id =req.body.id;
+        var url =req.body.url;
+      
+        
+        User.findByIdAndUpdate({_id:id},{$pull :{'profileData.advertiesment':url}},function(err,result){
+            
+            if(err){
+                    res.statusCode =404;
+                console.log('Not user in delete advertice');
+            }else{
+                    res.statusCode=200;
+                res.json({
+                    succes:true,
+                    status:"succes",
+                    message:"succesfully deleted"
+
+                });
+
+            }
+
+        });
+
+
+    });
+
+    
 
   
     module.exports.router =router;

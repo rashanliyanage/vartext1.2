@@ -45,7 +45,7 @@ var upload = multer({ storage: storage });
         }
 
 router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,res){
-   // console.log('in the upload api');
+    console.log('in the upload api');
    // console.log('path'+path2);
    
    console.log(userDetail.userdetail.id);

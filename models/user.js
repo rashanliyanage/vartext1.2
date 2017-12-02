@@ -14,6 +14,7 @@ var userSchema = mongoose.Schema(
         spCatagory:{type: String},
         profileData:{
             profileurl:{type: String},
+            coverurl:{type:String},
             advertiesment:[]
         }
     }
