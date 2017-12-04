@@ -128,6 +128,11 @@ router.get('/getProfilePicture',function(req,res){
               
             }else if(user.profileData.profileurl==undefined){
               console.log('1st user');
+              res.statusCode =404;
+              res.json({
+                photodata:'',
+                success:false
+              });
             }else {
               console.log('not gettin err on get profile picture');
 

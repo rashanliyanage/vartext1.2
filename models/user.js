@@ -16,6 +16,14 @@ var userSchema = mongoose.Schema(
             profileurl:{type: String},
             coverurl:{type:String},
             advertiesment:[]
+        },
+        aboutDetail:{
+                    name:{type:String},
+                    email:{type:String},
+                    phoneNumber:{type:String},
+                    address:{type:String},
+                    qualification:{type:String},
+                    experience:{type:String},
         }
     }
   );

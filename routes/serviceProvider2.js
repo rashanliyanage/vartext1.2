@@ -40,7 +40,64 @@ var storage = multer.diskStorage({
             return new Buffer(bitmap).toString('base64');
             }
 
+router.get('/getCoverphoto',function(req,res){
+console.log('in the get cover');
+getCoverPoto(userDetail.userdetail.id,res);
 
+
+})
+
+
+var getCoverPoto = function(id,res){
+
+
+User.findById({_id:id},function(err,user){
+
+
+        if(err){
+            statusCode =500;
+            res.json({
+                    success:false,
+                    status:" internal server err"
+
+
+            });
+        } else if(!user){
+
+            res.statusCode =404;
+            res.json({
+                success:false,
+                status:" user not found",
+
+
+            });
+        } else{
+            if(user.profileData.coverurl==undefined){
+
+                res.statusCode =404;
+                res.json({
+                    id:user._id,
+                    img:''
+
+                });
+            } else{
+
+            var base64str = base64_encode(user.profileData.coverurl);
+            res.statusCode =200;
+            res.json({
+
+               
+                id:user._id,
+                img:base64str
+        });
+
+    }
+
+
+
+}
+});
+}
 
 
 router.post('/updateCoverPhoto',upload.array("uploads[]", 12),function(req,res){
@@ -87,7 +144,6 @@ router.post('/updateCoverPhoto',upload.array("uploads[]", 12),function(req,res){
         res.json({
         
             id:userDetail.userdetail.id,
-            url:photo.profileData.coverurl,
             img: base64str
           
           
@@ -106,6 +162,99 @@ router.post('/updateCoverPhoto',upload.array("uploads[]", 12),function(req,res){
 
 
 })
+
+var getEditAbout =function(id,res){
+    
+    console.log('in the get about api');
+        User.findById({_id:id},function(err,result){
+    
+            if(err){
+    
+                res.statusCode =500;
+                res.json({
+                    suscces:false,
+                    message:'err get about data'
+    
+    
+                });
+            } else if(!result.aboutDetail){
+    
+                console.log('not foud about data');
+    
+            } else {
+    
+                res.statusCode =200;
+                res.json({
+                    name:result.aboutDetail.name,
+                    email:result.aboutDetail.email,
+                    address:result.aboutDetail.address,
+                    phoneNumber:result.aboutDetail.phoneNumber,
+                    qualification:result.aboutDetail.qualification,
+                    expirience:result.aboutDetail.experience
+    
+    
+                });
+    
+            }
+    
+    
+        });
+    
+    }
+    
+
+router.post('/submitAbout',function(req,res){
+
+    console.log('in the submitAbout Api');
+    var name =req.body.name;
+    console.log(name);
+    var email =req.body.email;
+    var phoneNumber =req.body.phoneNumber;
+    var address =req.body.address;
+    var qualification =req.body.qualification;
+    var expirience =req.body.expirience;
+
+    User.findByIdAndUpdate({_id:userDetail.userdetail.id}, {$set: {
+        'aboutDetail.name':name,
+        'aboutDetail.email':email,
+        'aboutDetail.phoneNumber':phoneNumber,
+        'aboutDetail.address':address,
+        'aboutDetail.qualification':qualification,
+        'aboutDetail.experience':expirience
+
+    
+    }}, function(err,result){
+
+        if(err){
+            res.statusCode =500;
+            console.log('in err edite about');
+            res.json({
+
+                success:false,
+                message:"error edit about"
+
+            });
+
+
+        } else {
+          getEditAbout(userDetail.userdetail.id,res);
+
+        }
+
+
+
+    });
+
+
+
+});
+
+router.get('/getEditAbout',function(req,res){
+getEditAbout(userDetail.userdetail.id,res);
+    
+
+
+});
 
 module.exports.router2 =router;
 
