@@ -15,7 +15,13 @@ var userSchema = mongoose.Schema(
         profileData:{
             profileurl:{type: String},
             coverurl:{type:String},
-            advertiesment:[]
+            advertiesment:[],
+            myevent:{
+                eventname:[],
+                eventdiscription:[],
+                eventtheamurl:[],
+            
+            }
         },
         aboutDetail:{
                     name:{type:String},
@@ -24,7 +30,8 @@ var userSchema = mongoose.Schema(
                     address:{type:String},
                     qualification:{type:String},
                     experience:{type:String},
-        }
+        },
+
     }
   );
 

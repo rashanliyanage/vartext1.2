@@ -11,7 +11,9 @@ var  fs =require('fs');
 var path2;
 
 
-
+var eventTheame =[];
+var eventName =[];
+var eventDiscription =[];
 
 var storage = multer.diskStorage({
       destination: function (req, file, cb) {
@@ -255,6 +257,131 @@ getEditAbout(userDetail.userdetail.id,res);
 
 
 });
+
+router.post('/uploadEventPhoto',upload.array("uploads[]", 12),function(req,res){
+
+console.log('in the event');
+
+    if(path2!=null){
+        
+        User.findByIdAndUpdate({_id:userDetail.userdetail.id}, 
+            {$addToSet: {
+                
+                'profileData.myevent.eventtheamurl':path2 
+            }},function(err,result){
+            if(err){
+            console.log(err);
+            res.sendStatus=500;
+            res.json(
+            {
+                success:false,
+                "status": "err",
+                 "message": "User not successfully created",
+            });
+
+}else{
+  res.statusCode =200;
+  console.log('saved');
+
+
+
+}
+});
+}else{
+console.log('path null');
+
+}
+
+
+});
+
+
+
+router.post('/uploadEventData',function(req,res){
+    
+    console.log('in the eventData');
+        var eventDiscription = req.body.eventdiscription;
+        var eventName = req.body.eventname;
+    
+       
+            
+            User.findByIdAndUpdate({_id:userDetail.userdetail.id}, 
+                {$addToSet: {
+                    'profileData.myevent.eventname':eventName,
+                    'profileData.myevent.eventdiscription':eventDiscription,
+                   
+                }},function(err,result){
+                if(err){
+                console.log(err);
+                res.sendStatus=500;
+                res.json(
+                {
+                    success:false,
+                    "status": "err",
+                     "message": "User not successfully created",
+                });
+    
+    }else{
+      res.statusCode =200;
+      console.log('saved');
+    
+    getEvent(userDetail.userdetail.id,res);
+    
+
+    }
+    });
+    
+    
+    
+    });
+
+    var getEvent = function(id,res){
+
+
+            User.findById({_id:id},function(err,result){
+
+                if(err){
+
+                    console.log('error in get event');
+                    res.statusCode = 500;
+                    res.json({
+
+                        success:false,
+                        message:"error in get event"
+
+                    });
+
+                }else{
+                    for(var i=0;i<result.profileData.myevent.eventname.length;i++){
+                        console.log((result.profileData.myevent.eventtheamurl[i]));
+                        if(result.profileData.myevent.eventtheamurl[i]!= undefined){
+                        var base64str = base64_encode(result.profileData.myevent.eventtheamurl[i]);
+                        eventTheame.push(base64str);
+                        }
+                        eventName.push(result.profileData.myevent.eventname[i]);
+                        eventDiscription.push(result.profileData.myevent.eventdiscription[i]);
+                    
+                    }
+
+                    res.statusCode =200;
+                    res.json({
+
+                        success:true,
+                        EventTheamArray:eventTheame,
+                        eventNameArray: eventName,
+                        eventDiscriptionArray:eventDiscription
+
+                    });
+
+                    eventTheame.length =0;
+                    eventName.length =0;
+                    eventDiscription.length =0;
+                }
+
+
+            });
+
+    }
 
 module.exports.router2 =router;
 
