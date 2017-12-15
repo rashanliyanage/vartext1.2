@@ -5,6 +5,7 @@ var bodyparser =require('body-parser');
 var cors =require('cors');
 var passport =require('passport');
 var mongoose = require('mongoose');
+var organizer =require('./routes/organizer');
 var users = require('./routes/users');
 var app = express();
 var config =require('./config/user');
@@ -32,6 +33,7 @@ app.use('/api',users.router);
 app.use('/api/profile',userProfile);
 app.use('/api/add/',serviceProviderPage_1.router);
 app.use('/api/add_2/',serviceProviderPage_2.router2);
+app.use('/api/event/',organizer.router);
 
 
 app.listen(port,function(){
