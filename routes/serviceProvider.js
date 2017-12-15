@@ -97,7 +97,7 @@ var storage = multer.diskStorage({
                 if(err){
                     res.statusCode =500;
                     console.log('err of the get all add');
-                    statusco
+                    
                     res.json({
                         success:false,
                         status:"err",

@@ -295,6 +295,13 @@ console.log('path null');
 
 });
 
+function EventDetail(){
+
+
+
+
+}
+
 
 
 router.post('/uploadEventData',function(req,res){
@@ -303,6 +310,7 @@ router.post('/uploadEventData',function(req,res){
         var eventDiscription = req.body.eventdiscription;
         var eventName = req.body.eventname;
     
+     
        
             
             User.findByIdAndUpdate({_id:userDetail.userdetail.id}, 
@@ -310,7 +318,7 @@ router.post('/uploadEventData',function(req,res){
                     'profileData.myevent.eventname':eventName,
                     'profileData.myevent.eventdiscription':eventDiscription,
                    
-                }},function(err,result){
+                }} ,function(err,result){
                 if(err){
                 console.log(err);
                 res.sendStatus=500;
@@ -325,7 +333,16 @@ router.post('/uploadEventData',function(req,res){
       res.statusCode =200;
       console.log('saved');
     
-    getEvent(userDetail.userdetail.id,res);
+    res.json({
+        
+                                success:true,
+                                EventTheamArray:eventTheame,
+                                eventNameArray: eventName,
+                                eventDiscriptionArray:eventDiscription
+        
+                            });
+        
+    
     
 
     }
@@ -382,6 +399,11 @@ router.post('/uploadEventData',function(req,res){
             });
 
     }
+
+    router.get('/getEvent',function(req,res){
+        getEvent(userDetail.userdetail.id,res);
+
+    });
 
 module.exports.router2 =router;
 
