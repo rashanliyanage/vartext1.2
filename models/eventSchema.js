@@ -7,10 +7,7 @@ var userSchema = mongoose.Schema(
         eventname:{type:String},
         Date:{type:Date},
         location:{type:String},
-        organizer:[{
-            organizername:{type:String},
-            organizerId:{type:String}
-        }],
+        organizer:[],
         eventtype:String
         
         
