@@ -7,7 +7,10 @@ const bcrypt =require('bcryptjs');
 var User =require('../models/user');
 var  fs =require('fs');
 
-
+module.exports.currentEvent = currentevent ={
+    currenteventid:'',
+ 
+}
 function base64_encode(file) {  //read imge file
     // read binary data
    // console.log(file);
@@ -15,6 +18,43 @@ function base64_encode(file) {  //read imge file
     // convert binary data to base64 encoded string
     return new Buffer(bitmap).toString('base64');
     }
+
+    router.post('/addorganizers',function(req,res){
+        console.log('in the add organizer');
+
+            var id = req.body.selectedorganizerId;
+            console.log(id);
+        Event.findByIdAndUpdate({_id:this.currentevent.currenteventid},{$addToSet :{'organizer':id}},function(err,result){
+
+
+            if(err){
+
+                console.log('error in add orgnizer');
+                res.statusCode =500;
+                res.json({
+
+                        success:false,
+                        message:'server error'
+                
+
+
+                });
+
+            }else{
+                console.log('success add');
+                res.statusCode =200;
+                res.json({
+                    success:true,
+                    message:'success add'
+
+                });
+            }
+
+
+
+        });
+
+        });
 
 
 
@@ -82,6 +122,7 @@ router.post('/registerEvent',function(req,res){
 
 });
 
+
 router.post('/login',function(req,res){
 
 var eventname = req.body.eventname;
@@ -136,6 +177,9 @@ if(!password || !eventname){
                             message:"successfully loging",
                             eventname:event.eventname
                         });
+
+                       this.currentevent.currenteventid =event._id;
+                        // console.log('lo'+ this.currentevent.currenteventid);
 
                     }else{
 
