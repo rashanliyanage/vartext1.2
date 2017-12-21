@@ -10,6 +10,7 @@ var User = require('../models/user');
 var fs = require('fs');
 var multer = require('multer');
 var base64 = require('base-64');
+var async = require('async');
 
 
 
@@ -154,22 +155,26 @@ var generateAddNotification = function (addOrganizerId, selectedorganizerId, eve
 
 
 
-var sentNotificationObj = function (notification, eventid, addedorganizerpropic) {
+var sentNotificationObj = function (notification, eventid,addedorganizerpropic) {
 
     this.notification = notification;
     this.eventid = eventid;
-    this.addedorganizerpropic = addedorganizerpropic;
+this.addedorganizerpropic = addedorganizerpropic;
 
 
 
 }
 var notificationSetArray2 = [];
+var name;
 
 router.post('/getnotification', function (req, res) {
-    console.log('in aside');
-
+ 
     var id = req.body.userid;
+    async.series([
+        function(callback){
+            console.log('in asy 111')
 
+            
     User.findById({ _id: id }, function (err, result) {
         
                 if (err) {
@@ -188,16 +193,12 @@ router.post('/getnotification', function (req, res) {
         
                 } else {
                     console.log('in noti arry');
+                    if( result.notification.length !=0){
         
                     for (var i = 0; i < result.notification.length; i++) {
-        
-        
-        
                         var addedevent = result.notification[i].addedevent;
                         var notification = result.notification[i].notification;
-                        console.log('added event' + addedevent);
         
-                        console.log('added noti' + notification);
                         User.findById({ _id: result.notification[i].addedorganizer }, function (err, addedorganizer) {
                             if (err) {
         
@@ -205,11 +206,10 @@ router.post('/getnotification', function (req, res) {
         
                             } else {
                                 var base64str = base64_encode(addedorganizer.profileData.profileurl);
-                                console.log(base64str);
-                                console.log(notification);
-                                console.log(addedevent);
+                               
+            
         
-                                var newsentNotificationObj = new sentNotificationObj(notification, addedevent, base64str);
+                                var newsentNotificationObj = new sentNotificationObj(notification, addedevent,base64str);
         
                                 notificationSetArray2.push(newsentNotificationObj);
         
@@ -222,21 +222,9 @@ router.post('/getnotification', function (req, res) {
                         });
         
                     }
-        
+                }
                     console.log('succes get notification');
-                    res.statusCode = 200;
-                    
-                        res.json({
-            
-                            success: true,
-                            notificationArray: notificationSetArray2
-            
-            
-                        })
-                        console.log(notificationSetArray2);
-            
-            
-                        notificationSetArray2.length = 0;
+                   
                         
                         
                     
@@ -245,6 +233,31 @@ router.post('/getnotification', function (req, res) {
                 
         
             });
+           
+            callback(null,'one');
+        },function(arg1,callback){
+            res.statusCode = 200;
+            
+                res.json({
+    
+                    success: true,
+                    notificationMyArray: notificationSetArray2
+    
+    
+                })
+                // console.log(notificationSetArray2);
+                console.log('asy 2')
+    
+                notificationSetArray2.length = 0;
+            console.log('asy 2')
+            //callback(null,'hello');
+        }
+
+
+    ],function(err,resulte){});
+
+  
+
   
    
 
