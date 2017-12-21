@@ -12,6 +12,14 @@ var userSchema = mongoose.Schema(
         password:{type: String },
         usertype:{type: String },
         spCatagory:{type: String},
+        notification:[{
+            notification:String,
+            addedevent:String,
+            addedorganizer:String,
+            date:Date,
+
+
+        }],
         profileData:{
             profileurl:{type: String},
             coverurl:{type:String},
