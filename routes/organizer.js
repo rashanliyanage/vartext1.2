@@ -152,6 +152,21 @@ var generateAddNotification = function (addOrganizerId, selectedorganizerId, eve
 
 }
 
+router.post('/setCoordinats',function(req,res){
+    var lat =req.body.lat;
+    var lng = req.body.lng;
+    var eventId = req.body.eventId;
+    console.log(lat);
+    console.log(lng );
+    console.log(eventId);
+    res.statusCode =200;
+    res.json({
+success:true,
+
+    });
+
+
+});
 
 
 
@@ -168,6 +183,31 @@ var notificationSetArray2 = [];
 var name;
 
 router.post('/getnotification', function (req, res) {
+
+    function  getAddedOrganizerProfilePic(addedevent,notification,org){
+        User.findById({ _id: org }, function (err, addedorganizer) {
+            if (err) {
+
+                console.log('error get added user pofile pic');
+
+            } else {
+                console.log('base64');
+                var base64str = base64_encode(addedorganizer.profileData.profileurl);
+               
+
+
+                var newsentNotificationObj = new sentNotificationObj(notification, addedevent,base64str);
+
+                notificationSetArray2.push(newsentNotificationObj);
+
+
+                console.log('succe get added user profile pic');
+                
+            }
+
+
+        });
+    }
  
     var id = req.body.userid;
     async.series([
@@ -198,28 +238,9 @@ router.post('/getnotification', function (req, res) {
                     for (var i = 0; i < result.notification.length; i++) {
                         var addedevent = result.notification[i].addedevent;
                         var notification = result.notification[i].notification;
-        
-                        User.findById({ _id: result.notification[i].addedorganizer }, function (err, addedorganizer) {
-                            if (err) {
-        
-                                console.log('error get added user pofile pic');
-        
-                            } else {
-                                var base64str = base64_encode(addedorganizer.profileData.profileurl);
-                               
-            
-        
-                                var newsentNotificationObj = new sentNotificationObj(notification, addedevent,base64str);
-        
-                                notificationSetArray2.push(newsentNotificationObj);
-        
-        
-                                console.log('succe get added user profile pic');
-                                
-                            }
-        
-        
-                        });
+                        console.log(notification);
+                              getAddedOrganizerProfilePic(addedevent,notification,result.notification[i].addedorganizer);
+                       
         
                     }
                 }
