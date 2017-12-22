@@ -152,18 +152,89 @@ var generateAddNotification = function (addOrganizerId, selectedorganizerId, eve
 
 }
 
+router.post('/getCoordinats',function(req,res){
+    console.log('in the getCoordinats ');
+    var eventId = req.body.eventId;
+    console.log( 'here'+eventId);
+
+    
+        Event.findById({_id:eventId},function(err,result){
+
+            if(err){
+                    console.log('error get coords');
+                    res.statusCode =500;
+                    res.json({
+
+                        success:false,
+                       
+
+
+
+                    });
+
+
+
+            }else{
+
+                console.log('succes get coords');
+
+                  res.json({
+
+                        success:true,
+                        lat:result.eventlocation.lat,
+                        lng:result.eventlocation.lng
+
+
+
+                    });
+
+            }
+
+
+        });
+
+
+});
+
 router.post('/setCoordinats',function(req,res){
     var lat =req.body.lat;
     var lng = req.body.lng;
     var eventId = req.body.eventId;
-    console.log(lat);
-    console.log(lng );
-    console.log(eventId);
-    res.statusCode =200;
-    res.json({
-success:true,
+    Event.findByIdAndUpdate({_id:eventId},{$set: {
+        'eventlocation.lat':lat,
+        'eventlocation.lng':lng
+    }},function(err,result){
+        if(err){
+
+            console.log('err set locations');
+            res.statusCode =500;
+            res.json({
+
+                success:false,
+
+
+            });
+
+        }else {
+            console.log('succes update event');
+            res.statusCode =200;
+            res.json({
+
+                success:true
+
+
+            });
+
+
+
+
+        }
+
+
+
 
     });
+  
 
 
 });

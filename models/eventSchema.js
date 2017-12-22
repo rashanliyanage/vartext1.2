@@ -10,7 +10,11 @@ var userSchema = mongoose.Schema(
         location:{type:String},
         organizer:[],
         adminorganizer:{type:String},
-        eventtype:String
+        eventtype:String,
+        eventlocation:{
+            lat:{type :Number},
+            lng:{type:Number}
+        }
         
         
 
