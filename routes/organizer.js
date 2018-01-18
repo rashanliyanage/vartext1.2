@@ -200,6 +200,7 @@ router.post('/setCoordinats',function(req,res){
     var lat =req.body.lat;
     var lng = req.body.lng;
     var eventId = req.body.eventId;
+    console.log(lat);
     Event.findByIdAndUpdate({_id:eventId},{$set: {
         'eventlocation.lat':lat,
         'eventlocation.lng':lng
@@ -529,12 +530,14 @@ router.post('/login', function (req, res) {
             } else {
                 organizers.forEach(function (organizer) {
                     // var neworganizerObject = new organizerObject();
+                    if(organizer.profileData.profileurl!=undefined){
                     var base64str = base64_encode(organizer.profileData.profileurl);
                     var name = organizer.firstname + ' ' + organizer.lastname;
                     var id = organizer.id;
                     var pic = base64str;
                     var organizer = new organizerObj(name, id, pic);
                     organizerArray.push(organizer);
+                    }
                     //console.log(organizer);
 
                 });

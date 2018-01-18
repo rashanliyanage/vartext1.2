@@ -7,7 +7,7 @@ var config =require('../config/user');
 
 var userArray=[];
 module.exports.userdetail = userdetail ={
-    id:'5a3c195b8b210f0b842b8cb8',
+    id:'',
     name:'rashan',
     profilepicture:'',
 }
