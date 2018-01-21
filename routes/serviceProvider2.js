@@ -42,9 +42,10 @@ var storage = multer.diskStorage({
             return new Buffer(bitmap).toString('base64');
             }
 
-router.get('/getCoverphoto',function(req,res){
+router.post('/getCoverphoto',function(req,res){
 console.log('in the get cover');
-getCoverPoto(userDetail.userdetail.id,res);
+console.log('get cover photo id is '+req.body.userId);
+getCoverPoto(req.body.userId,res);
 
 
 })
@@ -103,15 +104,16 @@ User.findById({_id:id},function(err,user){
 
 
 router.post('/updateCoverPhoto',upload.array("uploads[]", 12),function(req,res){
-    console.log(userDetail.userdetail.id);
+    
     console.log('in the update cover ');
+    console.log(req.body.userId);
     
     if(path2!=null){
             
            
       
     
-            User.findOneAndUpdate({_id:userDetail.userdetail.id}, {$set: {'profileData.coverurl':path2}},function(err,result){
+            User.findOneAndUpdate({_id:req.body.userId}, {$set: {'profileData.coverurl':path2}},function(err,result){
                 if(err){
                 console.log(err);
                 res.sendStatus=500;
@@ -209,6 +211,7 @@ router.post('/submitAbout',function(req,res){
 
     console.log('in the submitAbout Api');
     var name =req.body.name;
+    console.log(req.body.userId);
     console.log(name);
     var email =req.body.email;
     var phoneNumber =req.body.phoneNumber;
@@ -216,7 +219,7 @@ router.post('/submitAbout',function(req,res){
     var qualification =req.body.qualification;
     var expirience =req.body.expirience;
 
-    User.findByIdAndUpdate({_id:userDetail.userdetail.id}, {$set: {
+    User.findByIdAndUpdate({_id:req.body.userId}, {$set: {
         'aboutDetail.name':name,
         'aboutDetail.email':email,
         'aboutDetail.phoneNumber':phoneNumber,
@@ -239,7 +242,7 @@ router.post('/submitAbout',function(req,res){
 
 
         } else {
-          getEditAbout(userDetail.userdetail.id,res);
+          getEditAbout(req.body.userId,res);
 
         }
 
@@ -251,8 +254,10 @@ router.post('/submitAbout',function(req,res){
 
 });
 
-router.get('/getEditAbout',function(req,res){
-getEditAbout(userDetail.userdetail.id,res);
+router.post('/getEditAbout',function(req,res){
+    console.log('get edit about');
+    console.log(req.body.userId);
+getEditAbout(req.body.userId,res);
     
 
 

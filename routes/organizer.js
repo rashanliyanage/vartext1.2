@@ -11,7 +11,7 @@ var fs = require('fs');
 var multer = require('multer');
 var base64 = require('base-64');
 var async = require('async');
-
+var path2;
 
 
 var storage = multer.diskStorage({
@@ -22,11 +22,12 @@ var storage = multer.diskStorage({
         cb(null, file.originalname);
         //console.log('origina'+file.originalname);
         var path1 = './routes/Add/' + file.originalname;
-        var path2 = path1;
-        imagesPath.push(path1);
-
-
         path2 = path1;
+        console.log(path2);
+      
+
+
+        // path2 = path1;
         //console.log('path hii'+path2);
     }
 });
@@ -54,6 +55,79 @@ function base64_encode(file) {  //read imge file
     // convert binary data to base64 encoded string
     return new Buffer(bitmap).toString('base64');
 }
+
+router.post('/broadcastEvent',upload.array("uploads[]","id", 12),function(req,res){
+console.log('in th broadcast');
+
+console.log(req.body.id);
+console.log(req.body.eventname);
+console.log(req.body.eventdiscription);
+console.log(req.body.eventDate);
+console.log(req.body.eventTime);
+console.log(req.body.eventType);
+var evnentid =req.body.id;
+var eventname =req.body.eventname;
+var eventdiscription =req.body.eventdiscription;
+var eventTime =req.body.eventTime;
+var eventDate =req.body.eventDate;
+var eventType = req.body.eventType;
+console.log(path2);
+
+Event.findByIdAndUpdate({_id:evnentid}, {$set: {
+       'BroadcastEvent.eventname':eventname,
+       'BroadcastEvent.eventDiscription':eventdiscription,
+       'BroadcastEvent.eventPictureUrl':path2,
+       'BroadcastEvent.date':eventDate,
+       'BroadcastEvent.time':eventTime,
+       'BroadcastEvent.eventType':eventType,
+    
+    }},function(err,event){
+
+
+        if(err){
+            console.log('erro');
+
+            res.statusCode =500;
+            res.json({
+
+                succes:false,
+                messge:'enternal server error'
+
+
+            });
+
+        }else if(!event){
+
+            console.log('not found');
+            res.statusCode =404;
+
+            res.json({
+                succes:false,
+                message:'not found event',
+
+
+
+            });
+        }else{
+            console.log('success');
+            res.statusCode =200;
+            res.json({
+
+                succes:true,
+                message:'success publish event'
+
+
+            });
+
+
+        }
+
+
+    });
+
+
+});
+
 
 router.post('/addorganizers', function (req, res) {
     console.log('in the add organizer');
@@ -428,6 +502,9 @@ router.post('/login', function (req, res) {
 
     var eventname = req.body.eventname;
     var password = req.body.password;
+    var userId = req.body.userId;
+    console.log('log event id '+userId);
+  
 
     if (!password || !eventname) {
 
@@ -463,6 +540,9 @@ router.post('/login', function (req, res) {
             } else {
 
 
+
+
+
                 bcrypt.compare(password, event.password, function (err, isMatch) {
                     console.log(isMatch);
                     if (err) {
@@ -471,14 +551,62 @@ router.post('/login', function (req, res) {
                     }
                     if (isMatch) {
 
-                        res.statusCode = 200;
-                        res.json({
+                        var isMember =false;
 
-                            success: true,
-                            message: "successfully loging",
-                            eventname: event.eventname,
-                            eventid: event._id
-                        });
+                         event.organizer.forEach(function(organizer){
+
+                                if(organizer == userId){
+                                        console.log('as a member');
+                                        isMember =true;
+                              
+
+
+                                } 
+
+
+
+                            });
+
+                        if(event.adminorganizer == userId){
+                            res.statusCode = 200;
+                            console.log('as a admin');
+                            res.json({
+                               
+                                success: true,
+                                message: "successfully loging",
+                                eventname: event.eventname,
+                                eventid: event._id
+                            });
+
+
+                        } else  if(isMember ==true) {
+
+
+                                     res.statusCode = 200;
+                                      res.json({
+    
+                                success: true,
+                                message: "successfully loging",
+                                eventname: event.eventname,
+                                eventid: event._id
+                            });
+
+
+
+
+
+                        }else {
+                            res.statusCode = 200;
+                            res.json({
+                                success:400,
+                                message:'you are not a member'
+
+                            });
+
+
+                        }
+
+                    
 
                         this.currentevent.currenteventid = event._id;
                         // console.log('lo'+ this.currentevent.currenteventid);

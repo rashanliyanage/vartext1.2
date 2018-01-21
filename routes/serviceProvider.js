@@ -46,6 +46,7 @@ var storage = multer.diskStorage({
     router.post('/uploadAdd',upload.array("uploads[]", 12),function(req,res){
              
         console.log('inthe auploadApp api');
+        console.log('uploadAdd userId  '+req.body.userId);
     
 
        if(imagesPath.length==0){
@@ -54,7 +55,7 @@ var storage = multer.diskStorage({
        }else{
 
         for(i=0;i<imagesPath.length;i++){
-            User.findByIdAndUpdate({_id:userDetail.userdetail.id},
+            User.findByIdAndUpdate({_id:req.body.userId},
                 {$addToSet:{'profileData.advertiesment':imagesPath[i]}},false,function(err,result){
                         if(err){
                             res.statusCode=500;
@@ -83,9 +84,10 @@ var storage = multer.diskStorage({
     });
 
 
-    router.get('/getAdd',function(req,res){
+    router.post('/getAdd',function(req,res){
         console.log('in the getadd api');
-        getAllAdd(res,userDetail.userdetail.id);
+        console.log('get all add '+req.body.userId);
+        getAllAdd(res,req.body.userId);
 
 
     });

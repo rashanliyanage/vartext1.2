@@ -10,7 +10,9 @@ var User =require('../models/user');
 var userDetail =require('./users');
 var multer = require('multer');
 var  fs =require('fs');
+var jwt = require('jsonwebtoken');
 var path2;
+var config =require('../config/user');
 
 
 
@@ -44,18 +46,60 @@ var upload = multer({ storage: storage });
         return new Buffer(bitmap).toString('base64');
         }
 
+
+// router.use((req,res,next)=>{
+
+// const token =req.headers['authonticate'];
+// if(!token){
+
+// res.json({
+
+//   message:'no provider'
+// });
+
+// }else{
+
+// jwt.verify(token,config.secret,(err,decoded)=>{
+
+// if(err){
+
+// res.json({
+// message:"token error"
+
+// });
+
+// }else{
+//     req.decoded =decoded;
+//     next();
+
+// }
+
+// })
+
+// }
+
+// });
+
+// router.get('/test',function(req,res){
+
+//   req.send(req.decoded);
+// });
+
+
 router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,res){
     console.log('in the upload api');
+    console.log('userid'+req.body.userId);
+    var userId =req.body.userId;
    // console.log('path'+path2);
    
-   console.log(userDetail.userdetail.id);
+  //  console.log(userDetail.userdetail.id);
     var newUser =new User();
     if(path2!=null){
             
             newUser.url=path2;
       
     
-            User.findOneAndUpdate({_id:userDetail.userdetail.id}, {$set: {'profileData.profileurl':path2}},function(err,result){
+            User.findOneAndUpdate({_id: userId}, {$set: {'profileData.profileurl':path2}},function(err,result){
                 if(err){
                 console.log(err);
                 res.sendStatus=500;
@@ -83,7 +127,7 @@ router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,
         });
         console.log('photo err');
       } else{
-        console.log('photo is '+ photo);
+        // console.log('photo is '+ photo);
     var base64str = base64_encode(photo.profileData.profileurl);
     
         res.statusCode = 200;
@@ -110,9 +154,10 @@ router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,
 
 
 
-router.get('/getProfilePicture',function(req,res){
+router.post('/getProfilePicture',function(req,res){
   console.log('in the get apofile picture api');
-  User.findById(userDetail.userdetail.id,function(err,user){
+  console.log('get user pro id'+req.body.userId);
+  User.findById(req.body.userId,function(err,user){
 
             if(err){
                 console.log('get profile picture err');

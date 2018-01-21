@@ -14,6 +14,17 @@ var userSchema = mongoose.Schema(
         eventlocation:{
             lat:{type :Number},
             lng:{type:Number}
+        },
+        BroadcastEvent:{
+                eventType:{type:String},
+                eventname:{type:String},
+                eventDiscription:{type:String},
+                eventPictureUrl:{type:String},
+                date:{type:String},
+                time:{type:String}
+
+
+
         }
         
         
