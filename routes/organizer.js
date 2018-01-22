@@ -128,6 +128,47 @@ Event.findByIdAndUpdate({_id:evnentid}, {$set: {
 
 });
 
+router.post('/addServieceProvider',function(req,res){
+    console.log('in the add service provider');
+    var id = req.body.selectedorganizerId;
+    console.log('id is '+id);
+    var eventid = req.body.eventId;
+
+    Event.findByIdAndUpdate({_id:eventid}, {$addToSet: {'organizer':id}},function(err,result){;
+
+    if(err){
+        console.log();
+
+        console.log('error in add service proveider');
+        res.statusCode = 500;
+        res.json({
+
+            success: false,
+            message: 'server error'
+
+
+
+        });
+
+
+    }else {
+        console.log('success add service provider');
+
+        console.log('success add');
+        res.statusCode = 200;
+        res.json({
+            success: true,
+            message: 'success add'
+
+        });
+
+
+    }
+
+
+});
+});
+
 
 router.post('/addorganizers', function (req, res) {
     console.log('in the add organizer');
@@ -631,6 +672,7 @@ router.post('/login', function (req, res) {
 
         });
     }
+});
 
 
     var organizerObj = function (name, id, pic) {
@@ -688,5 +730,60 @@ router.post('/login', function (req, res) {
 
     });
 
-});
+
+
+
+
+    router.get('/getserviceprovider', function (req, res) {
+        console.log(' in get service provider ');
+
+        User.find({ usertype:'service_provider' }, function (err, organizers) {
+
+
+            if (err) {
+                console.log('error get service provider');
+                res.statusCode = 500;
+                res.json({
+
+                    success: false,
+                    message: 'error get all user'
+
+                });
+                console.log('error get all organizer');
+            } else {
+                console.log('fetching service provider');
+                organizers.forEach(function (organizer) {
+                    // var neworganizerObject = new organizerObject();
+                    if(organizer.profileData.profileurl!=undefined){
+                    var base64str = base64_encode(organizer.profileData.profileurl);
+                //    console.log(base64str);
+                    var name = organizer.firstname + ' ' + organizer.lastname;
+                    var id = organizer.id;
+                    var pic = base64str;
+                    var organizer = new organizerObj(name, id, pic);
+                    organizerArray.push(organizer);
+                    }
+                    //console.log(organizer);
+
+                });
+                res.statusCode = 200;
+                res.json({
+
+                    success: true,
+                    allOrganizerArray: organizerArray
+
+                });
+                organizerArray.length = 0;
+               //  console.log(organizerArray);
+
+            }
+
+
+
+        });
+
+
+    });
+
+
 module.exports.router = router;
