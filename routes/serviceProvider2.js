@@ -17,12 +17,12 @@ var eventDiscription =[];
 
 var storage = multer.diskStorage({
       destination: function (req, file, cb) {
-          cb(null, './routes/picture/');
+          cb(null, './routes/Add/');
           //console.log(file);
       },  filename: function (req, file, cb) {
         cb(null, file.originalname);
         //console.log('origina'+file.originalname);
-        var path1 =   './routes/picture/' + file.originalname;
+        var path1 =   './routes/Add/' + file.originalname;
      
        console.log(path1);
         

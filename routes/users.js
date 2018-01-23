@@ -4,6 +4,7 @@ var User = require('../models/user');
 var passport = require('passport');
 var jwt = require('jsonwebtoken');
 var config =require('../config/user');
+var User2 =require('../models/user_2');
 
 var userArray=[];
 module.exports.userdetail = userdetail ={
@@ -24,7 +25,7 @@ console.log('in the register');
         var email = req.body.email;
         var password = req.body.password;
         var usertype = req.body.usertype;
-        
+        user2Register( firstname,lastname ,username, email ,password ,usertype);
                  
                   newUser.firstname =firstname;
                   newUser.lastname = lastname;
@@ -51,6 +52,7 @@ console.log('in the register');
                 newUser.spCatagory =spCatagory;
             }
             
+            
             User.addUser(newUser,function(err,user){
 
                     if(err){
@@ -72,6 +74,54 @@ console.log('in the register');
             });
 
 });
+
+var user2Register =function(firstname,lastname ,username, email ,password ,usertype){
+
+    var firstname =firstname;
+    var lastname =lastname;
+    var username =username;
+    var email =email;
+    var password =password;
+    var dupusertype =usertype;
+    var usertype;
+    if(dupusertype == 'organizer'){
+        usertype ='organizer';
+
+    }
+    if(dupusertype=='service_provider'){
+        usertype ='supplier';
+    }
+
+    var newUse2 =new User2();
+
+        newUse2.fname =firstname;
+        newUse2.lname =lastname;
+        newUse2.username =username;
+        newUse2.email =email;
+        newUse2.password =password;
+        newUse2.usertype = usertype;
+        
+        newUse2.save(function(err,user){
+
+            if(err){
+                throw err;
+
+            }else{
+                console.log('save success user 2');
+
+            }
+
+
+
+        });
+        
+
+
+}
+
+
+
+
 
 router.post('/authenticate',function(req,res,next){
     console.log('in the api');

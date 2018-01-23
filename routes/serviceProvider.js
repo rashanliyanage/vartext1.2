@@ -74,7 +74,7 @@ var storage = multer.diskStorage({
             }
             imagesPath.length=0;
 
-            getAllAdd(res,userDetail.userdetail.id);
+            getAllAdd(res,req.body.userId);
        }
        
 
