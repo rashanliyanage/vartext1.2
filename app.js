@@ -25,6 +25,7 @@ var serviceProviderPage_2 =require('./routes/serviceProvider2');
 const port =3000;
 app.use(bodyparser.urlencoded({ extended: false }));
 app.use(cors());
+app.use(express.static(path.join(__dirname, 'routes')));
 app.use(bodyparser.json());
 app.use(passport.initialize());
 app.use(passport.session());

@@ -4,7 +4,7 @@ const config =require('../config/user');
 
 var userSchema = mongoose.Schema(
     {  
-
+        referanceuserid:{type:String},
         firstname:{type: String},
         lastname:{type: String},
         username:{type: String},

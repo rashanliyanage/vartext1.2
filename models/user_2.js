@@ -7,6 +7,7 @@ var db_schema = mongoose.Schema({
     email: {type: String },
     password: {type: String},
     usertype:{type:String},
+    referanceuserid:{type:String},
     imgurl:{type:String},
     adz:[{adzname:{type:String},
           priceforservice:{type:String},
