@@ -12,7 +12,7 @@ var multer = require('multer');
 var base64 = require('base-64');
 var async = require('async');
 var path2;
-
+var path4;
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -23,6 +23,7 @@ var storage = multer.diskStorage({
         //console.log('origina'+file.originalname);
         var path1 = './routes/Add/' + file.originalname;
         path2 = path1;
+        path4 =  'http://192.168.1.101:3000/Add/'+ file.originalname;
         console.log(path2);
       
 
@@ -71,6 +72,7 @@ var eventdiscription =req.body.eventdiscription;
 var eventTime =req.body.eventTime;
 var eventDate =req.body.eventDate;
 var eventType = req.body.eventType;
+
 console.log(path2);
 
 Event.findByIdAndUpdate({_id:evnentid}, {$set: {
@@ -80,6 +82,8 @@ Event.findByIdAndUpdate({_id:evnentid}, {$set: {
        'BroadcastEvent.date':eventDate,
        'BroadcastEvent.time':eventTime,
        'BroadcastEvent.eventType':eventType,
+       'Date':eventDate,
+       
     
     }},function(err,event){
 
@@ -127,6 +131,148 @@ Event.findByIdAndUpdate({_id:evnentid}, {$set: {
 
 
 });
+
+
+    
+  
+
+router.post('/createvent2',upload.array("uploads[]","id", 12),function(req,res){
+    var newEvent = new Event();
+    console.log('in the create event 2');
+    var userid =req.body.id;
+    var password =req.body.password;
+   
+    
+    bcrypt.genSalt(10, function (err, salt) {
+        bcrypt.hash(password, salt, function (err, hash) {
+            if (err) { console.log('err') } else {
+                newEvent.Date =req.body.edate,
+                newEvent.time = req.body.etime,
+                newEvent.eventType =req.body.eventType;
+                newEvent.imgurl =path4;
+                newEvent.eventDiscription =req.body.edescription;
+                newEvent.adminorganizer=req.body.id;
+                newEvent.password =hash;
+                newEvent.eventname =req.body.ename;
+            
+            
+               
+            ////////////////////////
+                newEvent.BroadcastEvent.eventType =req.body.eventType;
+                newEvent.BroadcastEvent.eventname =req.body.ename;
+                newEvent.BroadcastEvent.eventDiscription =req.body.edescription;
+                newEvent.BroadcastEvent.eventPictureUrl =path2;
+                newEvent.BroadcastEvent.date =req.body.edate;
+                newEvent.BroadcastEvent.time= req.body.etime;
+            
+            }
+            
+            newEvent.save(function (err, resule) {
+
+                if (err) {
+                    res.statusCode = 500;
+                    res.json({
+                        success: false,
+                        message: 'err register event'
+
+
+                    });
+
+                } else {
+                    User.findById({_id:userid},function(err,user){
+                        
+                                    if(err){
+                                        console.log('error');
+                        
+                                    }else {
+                                        console.log('succes create event');
+                                    res.json({msg:"success",
+                                    imgurl: user.imgurl,
+                                    id:user._id,
+                                    fname:user.firstname});
+                                    }
+                           
+                        
+                                   });
+                }
+
+
+            });
+
+
+
+        });
+    })
+
+
+    
+            
+});
+
+
+router.post('/geteventdata',function(req,res){
+    var id = req.body.id;
+    Event.find({adminorganizer:id}, function(err, event){
+        if (err) {
+            res.json({status: 0, msg: err});
+        }else{
+          console.log('show event');  
+          console.log(event);
+         res.json({"events":event});
+         
+         }
+
+
+    });
+});
+
+
+router.post('/addedorganizsers',function(req,res){
+    var organizerId = req.body.organizerId;
+    var eventId  = req.body.eventId;
+
+    Event.findOneAndUpdate({_id:eventId},{$set:{organizer:organizerId}},function(err, user){
+        if (err) {
+            res.json({status: 0, msg: err});
+        }else{
+         res.json({msg:"success"});
+         }
+
+
+    });
+});
+
+
+router.post('/getaddedorganizsers',function(req,res){
+    var eventId  = req.body.eventId;
+    var oranizersArray = [];
+
+    Event.find({_id:eventId},function(err,event){
+        if (err) {
+            res.json({status: 0, msg: err});
+        }else{
+            event.organizer.forEach(function(oranizerid){
+                User.find({_id:event.organizer},function(err,user){
+                    if(err){
+                        throw err;
+                       
+                    }else{
+                        oranizersArray.push({"organizerid":user._id,"organizername":user.firstname+user.lastname});
+                    }
+                });
+
+                
+            });
+         }
+        
+
+    });
+});
+
+
+
+
+
 
 router.post('/addServieceProvider',function(req,res){
     console.log('in the add service provider');
@@ -729,8 +875,6 @@ router.post('/login', function (req, res) {
 
 
     });
-
-
 
 
 

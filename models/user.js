@@ -4,14 +4,15 @@ const config =require('../config/user');
 
 var userSchema = mongoose.Schema(
     {  
-        referanceuserid:{type:String},
+
         firstname:{type: String},
         lastname:{type: String},
-        username:{type: String},
-        email:{type: String },
+        username:{type: String ,unique: true },
+        email:{type: String ,unique: true },
         password:{type: String },
         usertype:{type: String },
         spCatagory:{type: String},
+        imgurl:{type: String},
         notification:[{
             notification:String,
             addedevent:String,
@@ -56,6 +57,11 @@ var userSchema = mongoose.Schema(
 
  module.exports.getUserByUsername = function(username,callback){
     const query = {username:username};   
+    User.findOne(query,callback);
+
+ };
+ module.exports.getUserByEmail = function(email,callback){
+    const query = {email:email};   
     User.findOne(query,callback);
 
  };

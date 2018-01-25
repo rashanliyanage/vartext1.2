@@ -1,12 +1,9 @@
-//import { read } from 'fs';
-
 var express = require('express');
 var router = express.Router();
 var User = require('../models/user');
 var passport = require('passport');
 var jwt = require('jsonwebtoken');
 var config =require('../config/user');
-var User2 =require('../models/user_2');
 
 var userArray=[];
 module.exports.userdetail = userdetail ={
@@ -14,7 +11,6 @@ module.exports.userdetail = userdetail ={
     name:'rashan',
     profilepicture:'',
 }
-///////////////////////////////////////////////////////////////////////
 router.post('/register',function(req,res){
 console.log('in the register');
     var newUser = new User();
@@ -36,6 +32,7 @@ console.log('in the register');
                   newUser.email = email;
                   newUser.password =password;
                   newUser.usertype = usertype;
+                  newUser.imgurl ="http://10.10.28.104:3000/profile/newUser.png";
             }else if(req.body.usertype=='service_provider'){
     
                 var firstname =req.body.firstname; 
@@ -53,12 +50,11 @@ console.log('in the register');
                 newUser.password =password;
                 newUser.usertype = usertype;
                 newUser.spCatagory =spCatagory;
+                newUser.imgurl ="http://10.10.28.104:3000/profile/newUser.png";
             }
-           
             
             User.addUser(newUser,function(err,user){
-                var user_id =user._id;
-               
+
                     if(err){
                         res.json({
                             success:false,
@@ -67,10 +63,9 @@ console.log('in the register');
                         });
 
                     } else{
-                        user2Register(user_id, firstname,lastname ,username, email ,password ,usertype);
                         res.json({
                             success:true,
-                            message:'success  to register user'
+                            msg:"success"
 
                         });
 
@@ -79,204 +74,8 @@ console.log('in the register');
             });
 
 });
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-var user2Register =function(user_id,firstname,lastname ,username, email ,password ,usertype){
-    var  referanceuserid =user_id;
-    var firstname =firstname;
-    var lastname =lastname;
-    var username =username;
-    var email =email;
-    var password =password;
-    var dupusertype =usertype;
-    var usertype;
-    if(dupusertype == 'organizer'){
-        usertype ='Organizer';
-
-    }
-    if(dupusertype=='service_provider'){
-        usertype ='Supplier';
-    }
-
-    var newUse2 =new User2();
-
-        newUse2.fname =firstname;
-        newUse2.lname =lastname;
-        newUse2.username =username;
-        newUse2.email =email;
-        newUse2.password =password;
-        newUse2.usertype = usertype;
-        newUse2.referanceuserid =referanceuserid;
-        
-        newUse2.save(function(err,user){
-
-            if(err){
-                throw err;
-
-            }else{
-                User.findByIdAndUpdate({_id:referanceuserid },{$set: {'referanceuserid':user._id}},function(err,user){
-                        if(err){
-                            throw err
-                            console.log('error register ');
-
-                        }else {
 
 
-                            console.log('success register');
-
-                        }
-
-
-                });
-                console.log('save success user 2');
-
-            }
-
-
-
-        });
-        
-
-
-}
-////////////////////////////////////////////////////////////////////////////
-router.post("/register2",function(req,res){
-    
-      var fname = req.body.fname;
-      var lname = req.body.lname;
-      var username = req.body.username;
-      var email = req.body.email;
-      var password = req.body.password;
-      var usertype = req.body.usertype;
-      
-      var newuser = new User2();
-        newuser.fname = fname;
-        newuser.lname = lname;
-        newuser.username = username;
-        newuser.email = email;
-        newuser.password = password;
-        newuser.usertype = usertype;
-        newuser.imgurl = "http://10.10.28.104:3000/profile/newUser.png"
-
-       
-
-    
-
-  
-       
-    newuser.save(function(err,savedUser){  
-
-        if(err){
-            throw err;
-        }
-        else{
-
-          var userid =savedUser._id;
-            registerForUser(userid,fname,lname,username,email,password,usertype );
-          res.json({ msg:"success"});
-        }
-    });
-    
-  });
-
-  var registerForUser = function(userid,fname,lname,username,email,password,usertype){
-    var newUserForUser = new User();
-    newUserForUser.referanceuserid=userid;
-    newUserForUser.firstname = fname;
-    newUserForUser.lastname = lname;
-    newUserForUser.username = username;
-    newUserForUser.email = email;
-    newUserForUser.password = password;
-
-      if(usertype == 'Supplier'){
-        newUserForUser.usertype  ='service_provider';
-    }else{
-        newUserForUser.usertype ='organizer';
-    }
-    User.addUser(newUserForUser,function(err,user2){  
-        if(err){
-            throw err;
-        }
-        else{
-            User2.findOneAndUpdate({_id:userid},{$set: {'referanceuserid':user2._id}},function(err,user){
-
-                    if(err){
-
-                        throw err
-                    }else {
-
-                        console.log('successe save referance id on android');
-
-                    }
-
-
-            });
-            console.log('userangular saved');
-        }
-    });
-   
-
-
-  }
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  router.post('/loginorganizer',function(req,res){
-    var email = req.body.email;
-    var password = req.body.password;
-   
-        User2.findOne({email: email, password: password,usertype: "Organizer"}, function(err, user) {
-            if (err) {
-                res.json({status: 0, msg:"fail"});
-            }
-            if (!user) {
-                res.json({status: 3, msg:email,password});
-            }else{
-  
-              console.log(user._id);
-            res.json({
-              msg:"success",  
-              imgurl: user.imgurl,
-              id:user._id,
-              fname:user.fname,
-              lname:user.lname
-  
-          });
-  
-            }
-        });
-                              
-  });
-  
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  router.post('/loginsupplier',function(req,res){
-      var email = req.body.email;
-      var password = req.body.password;
-     
-          User2.findOne({email: email, password: password,usertype: "Supplier"}, function(err, user) {
-              if (err) {
-                  res.json({status: 0, msg:"fail"});
-              }
-              if (!user) {
-                  res.json({status: 3, msg:email,password});
-              }else{
-    
-                console.log(user._id);
-              res.json({
-                msg:"success",  
-                imgurl: user.imgurl,
-                id:user._id,
-                fname:user.fname,
-                lname:user.lname
-    
-            });
-    
-              }
-          });
-                                
-    });
-
-///////////////////////////////////////////////////////////////////////////////////////////
 
 router.post('/authenticate',function(req,res,next){
     console.log('in the api');
@@ -339,5 +138,64 @@ router.post('/authenticate',function(req,res,next){
 
 });
 
-   
+router.post('/login',function(req,res,next){
+    console.log('in the api');
+        const email =req.body.email;
+       
+        const password = req.body.password;
+        console.log(password);
+        if(!email|| !password){
+            console.log('hii');
+                  res.statusCode =404;
+                  res.json({
+                    "status":"not found error",
+                    "message":"some feeld are not filled"
+                  });
+            
+                 }else{ 
+                    
+                    User.getUserByEmail(email,function(err,user){
+           console.log(user);
+            if(err){
+                throw err;
+            }
+             if(!user){
+        
+                res.json({
+                    success:false,
+                    message:'user not found'
+
+                });
+            }
+           else { User.comparePassword(password,user.password,function(err,isMatch){
+
+                if(err){throw err}
+                if(isMatch){ 
+
+                    const token =jwt.sign({data:user},config.secret,{
+                        expiresIn:604800// 1 week
+                    });
+                    res.json({
+                        msg:"success",  
+                        imgurl:user.imgurl,
+                        id:user._id,
+                        fname:user.firstname,
+                        lname:user.lastname
+
+                    });
+                   
+                }else{
+                    return res.json({success:false,message:'wrong password'});
+
+                }
+            });
+        }
+        });
+    }
+
+});
+
+router.get('/profile', passport.authenticate('jwt', {session:false}),function(req, res, next){
+    res.json({user: req.user});
+  });   
 module.exports.router =router;

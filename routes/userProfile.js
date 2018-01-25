@@ -13,11 +13,9 @@ var  fs =require('fs');
 var jwt = require('jsonwebtoken');
 var path2;
 var config =require('../config/user');
-var User2 =require('../models/user_2');
 
-var path3;
+
 var path4;
-var path5;
 
 var storage = multer.diskStorage({
       destination: function (req, file, cb) {
@@ -27,7 +25,8 @@ var storage = multer.diskStorage({
         cb(null, file.originalname);
         //console.log('origina'+file.originalname);
         var path1 =   './routes/Add/' + file.originalname;
-       path3 = 'http://10.10.3.72:3000/Add/'+ file.originalname;
+     path4   = 'http://192.168.1.101:3000/Add/'+ file.originalname;
+     
        
         
         path2=path1;
@@ -88,7 +87,6 @@ var upload = multer({ storage: storage });
 // });
 
 
-
 router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,res){
     console.log('in the upload api');
     console.log('userid'+req.body.userId);
@@ -97,18 +95,19 @@ router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,
    
   //  console.log(userDetail.userdetail.id);
     var newUser =new User();
-    if((path2!=null) && (path3!=null) ){
+    if(path2!=null){
             
             newUser.url=path2;
-            setProfilePictureFor(userId,path3);
       
-            User.findOneAndUpdate({_id: userId}, {$set: {'profileData.profileurl':path2}},function(err,result){
+    
+            User.findOneAndUpdate({_id: userId}, {$set: {'profileData.profileurl':path2,'imgurl':path4 }},function(err,result){
                 if(err){
                 console.log(err);
                 res.sendStatus=500;
                 res.json(
-                {
-                    success:false,
+                {   
+                 
+                  success:false,
                     "status": "err",
                      "message": "User not successfully created",
                 });
@@ -124,6 +123,7 @@ router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,
             if(err){
         res.statusCode = 404;
         res.json({
+          
             success:false,
           "status": "error",
           "message": "404 Not Found"
@@ -135,6 +135,7 @@ router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,
     
         res.statusCode = 200;
         res.json({
+          msg:"successfully Uploaded",
             success:true,
           "status": "success",
           "message": "fourd profile picture",
@@ -155,86 +156,6 @@ router.post('/updateProfilePicture', upload.array("uploads[]", 12),function(req,
 
 });
 
-
-var setProfilePictureFor =function(id,path){
-  var  referanceuserid =id;
-  console.log( 'here is path'+path);
-  
- 
-  User2.findOneAndUpdate({referanceuserid:referanceuserid}, {$set: {'imgurl':path}},function(err,picture5){
-
-  if(err){
-  throw err;
-  
-  }else{
-  
-  console.log('succes full referace pitcure saved');
-  
-  }
-  
-  });
-  
-  
-  
-  
-  }
-
-  var StorageForAndroid = multer.diskStorage({
-    destination: function(req, file, callback) {
-        callback(null, "./routes/Add/");
-    },
-    filename: function(req, file, callback) {
-        callback(null,file.originalname);
-        path4 =  'http://10.10.17.16:3000/Add/'+ file.originalname;
-        path5 =  './routes/Add/' + file.originalname;
-        //console.log('path'+path4);
-    }
-  });
-
-  var uploadAndroid = multer({
-    storage: StorageForAndroid
-  }).array("pic", 3);
-
-
-  router.post("/upload", function(req, res) {
-    
-     
-      uploadAndroid(req, res, function(err) {
-      //console.log('path'+path4);
-      var id = req.body["id"];
-      if(id == null){
-       // console.log(email);
-      }else{
-    
-      User2.findOneAndUpdate({_id:id}, {$set:{imgurl:path4}}, function(err, user) {
-        if (err) {
-            res.json({status: 0, message: err});
-        }
-        if (!user) {
-            res.json({status: 3, msg:"Not a User"});
-        }else{
-
-          setAngularProPic(id,path5);
-           
-        res.json({msg:"successfully Uploaded"});
-        }
-    });}
-    
-    
-      });
-    });
-
-   var setAngularProPic = function(id,path){
-        User.findOneAndUpdate({referanceuserid:id},{$set:{'profileData.profileurl':path}},function(err,proPic){
-          if(err){
-            throw err;
-          }else{
-          console.log('save Angular User');
-          }
-        }
-
-        );
-   }
 
 
 router.post('/getProfilePicture',function(req,res){

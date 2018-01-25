@@ -6,10 +6,14 @@ var userSchema = mongoose.Schema(
     {  
         password:{type:String},
         eventname:{type:String},
-        Date:{type:Date},
+        Date:{type:String},
         location:{type:String},
         organizer:[],
+        imgurl:{type:String},
+        eventType:{type:String},
         adminorganizer:{type:String},
+        eventDiscription:{type:String},
+        time:{type:String},
         eventtype:String,
         eventlocation:{
             lat:{type :Number},
