@@ -93,7 +93,7 @@ var storage = multer.diskStorage({
     });
 
     var getAllAdd =function(res,id){
-
+        
         User.findById({_id:id},function(err,user){
 
                 if(err){
@@ -109,7 +109,7 @@ var storage = multer.diskStorage({
                     });
 
                 }else{
-
+                    if(user.profileData.advertiesment.length !=0){
                     
                     for(i=0;i<user.profileData.advertiesment.length;i++){
                         var base64str = base64_encode(user.profileData.advertiesment[i]);
@@ -132,6 +132,10 @@ var storage = multer.diskStorage({
                     //console.log(imagesPath);
                     imagesPath.length=0;
                     images.length =0;
+                }else{
+
+                    console.log('profile data nul');
+                }
 
                 }
 

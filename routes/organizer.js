@@ -11,8 +11,14 @@ var fs = require('fs');
 var multer = require('multer');
 var base64 = require('base-64');
 var async = require('async');
+var nodemailer = require('nodemailer');
+var Cryptr = require('cryptr'),
+cryptr = new Cryptr('myTotalySecretKey');
 var path2;
 var path4;
+
+
+
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -57,6 +63,60 @@ function base64_encode(file) {  //read imge file
     return new Buffer(bitmap).toString('base64');
 }
 
+
+
+router.post('/email',function(req,res){
+    var senderemail =req.body.youremail;
+    var recieveremail =req.body.recieveremail;
+    var senderpassword =req.body.yourPassword;
+    var subject = req.body.subjectOfthEmai;
+    var contennt = req.body.contentoftheEmail;
+
+    console.log('in send email api');
+
+
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        secure:false,
+        port:25,
+        auth: {
+               user:senderemail ,
+               pass: senderpassword
+           },tls:{
+               rejectUnauthorizide:false
+               
+    
+           }
+       })
+    
+       const mailOptions = {
+        from: senderemail, // sender address
+        to: recieveremail, // list of receivers
+        subject: subject, // Subject line
+        html: contennt// plain text body
+      };
+      transporter.sendMail(mailOptions, function (err, info) {
+        if(err){
+          console.log(err);
+          res.statusCode =500;
+          res.json({
+            succes:500
+
+          });
+        }else{
+            res.statusCode=200;
+            res.json({
+                succes:200
+
+            });
+          console.log('succes fully send');
+
+        }
+     });
+    
+
+});
+
 router.post('/broadcastEvent',upload.array("uploads[]","id", 12),function(req,res){
 console.log('in th broadcast');
 
@@ -83,7 +143,11 @@ Event.findByIdAndUpdate({_id:evnentid}, {$set: {
        'BroadcastEvent.time':eventTime,
        'BroadcastEvent.eventType':eventType,
        'Date':eventDate,
-       
+       'eventType':eventType,
+       'eventDiscription':eventdiscription,
+       'imgurl':path4,
+       'time':eventTime
+
     
     }},function(err,event){
 
@@ -133,8 +197,94 @@ Event.findByIdAndUpdate({_id:evnentid}, {$set: {
 });
 
 
-    
-  
+var organizerdetailArray =function(id,name){
+
+this.id =id;
+this.name =name;
+//this.img =img;
+
+}
+
+var existOrganizerArray =[];
+    router.post('/deleteorganizer',function(req,res){
+        console.log('in the delete organzer');
+        
+
+        var eventid = req.body.eventId;
+        var organizer = req.body.selectedorganizerId;
+        console.log(this.eventid);
+        console.log(organizer);
+
+        Event.findOneAndUpdate({_id:eventid},{$pull :{'organizer':organizer}},{new:true},function(err,event){
+
+            console.log(event);
+            if(err){
+                throw err
+                console.log('error delete array');
+            }else{
+                console.log('success delete array');
+
+               
+              
+
+                        
+                                    var arry;   
+                                event.organizer.forEach(function(organizer){
+                                    User.findById({_id:organizer},function(err,user){
+                                            if(err){
+                
+                                                console.log('error get organizer');
+                                            }else{
+                
+                                                var base64 =base64_encode(user.profileData.profileurl)
+                                                var name =user.firstname +' '+ user.lastname;
+                                                var id =user._id;
+                                                var imgUrl =user.imgurl;
+                                               
+                                                
+                
+                                                var objc = new organizerdetailArray(id,name);
+                                                //console.log(objc);
+                                               //saveInArray(base64,name,id);
+                                               
+                                              saveInArray(objc);
+                                               
+                
+                                            }
+                
+                
+                                    });
+                
+                                });
+                                console.log('final array'+existOrganizerArray);           
+
+                          
+
+               
+                   
+             
+                
+                existOrganizerArray.length =0;
+            }
+
+
+        });
+
+
+
+    });
+
+     var saveInArray =function(objct){
+        putInTOArray(objct)
+
+     }
+     
+     var putInTOArray =function(obj){
+
+        existOrganizerArray.push(obj);
+        console.log( existOrganizerArray);
+
+     }
 
 router.post('/createvent2',upload.array("uploads[]","id", 12),function(req,res){
     var newEvent = new Event();
@@ -153,6 +303,7 @@ router.post('/createvent2',upload.array("uploads[]","id", 12),function(req,res){
                 newEvent.eventDiscription =req.body.edescription;
                 newEvent.adminorganizer=req.body.id;
                 newEvent.password =hash;
+                newEvent.pass =password;
                 newEvent.eventname =req.body.ename;
             
             
@@ -277,10 +428,14 @@ router.post('/getaddedorganizsers',function(req,res){
 router.post('/addServieceProvider',function(req,res){
     console.log('in the add service provider');
     var id = req.body.selectedorganizerId;
+    var senderemail =req.body.senderemail;
+    var password =req.body.senderpassword;
+    console.log(senderemail);
+    console.log(password);
     console.log('id is '+id);
     var eventid = req.body.eventId;
 
-    Event.findByIdAndUpdate({_id:eventid}, {$addToSet: {'organizer':id}},function(err,result){;
+    Event.findByIdAndUpdate({_id:eventid}, {$addToSet: {'servieceProvider':id}},function(err,result){;
 
     if(err){
         console.log();
@@ -308,14 +463,89 @@ router.post('/addServieceProvider',function(req,res){
 
         });
 
-
+            sendEmailToServiceProvider(id,eventid,senderemail,password,res);
     }
 
 
 });
 });
 
+var  sendEmailToServiceProvider =function(id,eventid,senderemail,password,res){
+    console.log('in the send email api');
 
+Event.findById({_id:eventid})
+.populate({
+    path:'servieceProvider',
+    match: {_id:id},
+    select:'email'
+
+}).exec(function(err,event){
+
+    if(err){
+        throw err;
+
+    }else{
+console.log(event.servieceProvider[0].email);
+console.log(event.eventname);
+console.log(event.pass);
+
+
+                sendemail(event.servieceProvider[0].email, event.eventname, event.pass, senderemail,password,res);
+
+
+            }
+
+});
+}
+
+
+
+                var sendemail =function(recieveremail,eventname,eventpassword,senderemail,emailpassword,res){
+
+
+
+                    var transporter = nodemailer.createTransport({
+                        service: 'gmail',
+                        secure:false,
+                        port:25,
+                        auth: {
+                               user:senderemail ,
+                               pass: emailpassword
+                           },tls:{
+                               rejectUnauthorizide:false
+                               
+                    
+                           }
+                       })
+                    
+                       const mailOptions = {
+                        from: senderemail, // sender address
+                        to: recieveremail, // list of receivers
+                        subject: 'you added chat froup  ', // Subject line
+                        html: 'log to chat using password->'+eventpassword+'and eventname->'+eventname// plain text body
+                      };
+                      transporter.sendMail(mailOptions, function (err, info) {
+                        if(err){
+                          console.log(err);
+                          res.statusCode =500;
+                          res.json({
+                            succes:500
+                
+                          });
+                        }else{
+                            res.statusCode=200;
+                            res.json({
+                                succes:200
+                
+                            });
+                          console.log('succes fully send');
+                
+                        }
+                     });
+
+
+
+                }
 router.post('/addorganizers', function (req, res) {
     console.log('in the add organizer');
 
@@ -437,6 +667,10 @@ router.post('/getCoordinats',function(req,res){
 
             }else{
 
+                    if(result.eventlocation==null){
+
+                        console.log('event location is undifined');
+                    }else{
                 console.log('succes get coords');
 
                   res.json({
@@ -448,6 +682,7 @@ router.post('/getCoordinats',function(req,res){
 
 
                     });
+                }
 
             }
 
@@ -637,6 +872,7 @@ router.post('/registerEvent', function (req, res) {
         bcrypt.hash(password, salt, function (err, hash) {
             if (err) { console.log('err') } else {
                 newEvent.password = hash;
+                newEvent.pass =password;
                 newEvent.eventname = eventname;
                 newEvent.eventtype = eventtype;
                 newEvent.adminorganizer = userDetail.userdetail.id;
@@ -683,8 +919,7 @@ router.post('/registerEvent', function (req, res) {
 
 
 });
-
-
+////////////////////////////////////////////////
 router.post('/login', function (req, res) {
 
     var eventname = req.body.eventname;
@@ -821,6 +1056,142 @@ router.post('/login', function (req, res) {
 });
 
 
+
+//////////////////////////////////
+
+router.post('/loginchat', function (req, res) {
+    
+        var eventname = req.body.eventname;
+        var password = req.body.password;
+        var userId = req.body.userId;
+        console.log('log event id '+userId);
+      
+    
+        if (!password || !eventname) {
+    
+            res.statusCode = 404;
+            res.json({
+                succes:404,
+                "status": "not found event",
+                "message": "some feeld are not filled"
+            });
+    
+        } else {
+    
+            Event.findOne({ eventname: eventname }, function (err, event) {
+    
+                if (err) {
+    
+                    statusCode = 500;
+                    res.json({
+    
+                        success: false,
+                        message: "internal server err"
+    
+                    });
+                }
+                if (!event) {
+    
+                    res.statusCode = 404;
+                    res.json({
+                        success: false,
+                        message: "not found event"
+    
+                    });
+    
+                } else {
+    
+    
+    
+    
+    
+                    bcrypt.compare(password, event.password, function (err, isMatch) {
+                        console.log(isMatch);
+                        if (err) {
+                            
+                            res.statusCode =500;
+
+                            res.json({
+                                succes:false
+                            });
+                            throw err
+    
+                        }
+                      
+                        if (isMatch) {
+    
+                            var isMember =false;
+                              event.servieceProvider.forEach(function(servieceProvider){
+                                if( servieceProvider !=null){
+                                if(servieceProvider == userId){
+                                        console.log('as a member');
+                                        isMember =true;
+                              
+
+
+                                } 
+                            }
+
+
+
+                            });
+                             
+    
+                              if(isMember ==true) {
+    
+    
+                                         res.statusCode = 200;
+                                          res.json({
+        
+                                    success: true,
+                                    message: "successfully loging",
+                                    eventname: event.eventname,
+                                    eventid: event._id
+                                });
+    
+    
+    
+    
+    
+                            }else {
+                                res.statusCode = 200;
+                                res.json({
+                                    success:400,
+                                    message:'you cannot go this chat'
+    
+                                });
+    
+    
+                            }
+    
+                        
+    
+                            this.currentevent.currenteventid = event._id;
+                            // console.log('lo'+ this.currentevent.currenteventid);
+    
+                        } else {
+    
+                            res.statusCode = 200;
+                            res.json({
+                                success: false,
+                                message: "password are wrong"
+    
+    
+                            });
+    
+                        }
+    
+    
+                    });
+    
+                }
+    
+    
+            });
+        }
+    });
+    
+////////////////////////////////////////
     var organizerObj = function (name, id, pic) {
         this.name = name;
         this.id = id;
@@ -881,7 +1252,7 @@ router.post('/login', function (req, res) {
     router.get('/getserviceprovider', function (req, res) {
         console.log(' in get service provider ');
 
-        User.find({ usertype:'service_provider' }, function (err, organizers) {
+        User.find({ usertype:'service_provider' }, function (err, serviceprovider) {
 
 
             if (err) {
@@ -896,16 +1267,16 @@ router.post('/login', function (req, res) {
                 console.log('error get all organizer');
             } else {
                 console.log('fetching service provider');
-                organizers.forEach(function (organizer) {
+                serviceprovider.forEach(function ( serviceprovider) {
                     // var neworganizerObject = new organizerObject();
-                    if(organizer.profileData.profileurl!=undefined){
-                    var base64str = base64_encode(organizer.profileData.profileurl);
+                    if( serviceprovider.profileData.profileurl!=undefined){
+                    var base64str = base64_encode( serviceprovider.profileData.profileurl);
                 //    console.log(base64str);
-                    var name = organizer.firstname + ' ' + organizer.lastname;
-                    var id = organizer.id;
+                    var name =  serviceprovider.firstname + ' ' +  serviceprovider.lastname;
+                    var id = serviceprovider.id;
                     var pic = base64str;
-                    var organizer = new organizerObj(name, id, pic);
-                    organizerArray.push(organizer);
+                    var  serviceprovider = new organizerObj(name, id, pic);
+                    organizerArray.push( serviceprovider);
                     }
                     //console.log(organizer);
 
