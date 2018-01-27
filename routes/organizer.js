@@ -63,6 +63,27 @@ function base64_encode(file) {  //read imge file
     return new Buffer(bitmap).toString('base64');
 }
 
+
+router.post('/getaddedorganizsers',function(req,res){
+    console.log('in the get added orgnizer');
+    var eventId  = req.body.eventId;
+    Event.findById({_id:eventId}).populate('organizer', 'firstname lastname _id profileData.profileurl').exec(function(err,event){
+        if (err) {
+            res.json({status: 0, msg: err});
+        }else{
+            console.log(event.organizer);
+            event.organizer.forEach(function(organizer){
+                var base64 = base64_encode(organizer.profileData.profileurl);
+               
+                organizer.profileData.profileurl =base64;
+
+            });
+         
+            res.json({"organizers" : event.organizer});             
+            }
+    });
+})
+
 router.get('/getpublicevent',function(req,res){
 
 
@@ -75,7 +96,7 @@ router.get('/getpublicevent',function(req,res){
                 console.log(event.BroadcastEvent.eventPictureUrl)
                 var base64 =base64_encode(event.BroadcastEvent.eventPictureUrl);
                 event.BroadcastEvent.eventPictureUrl =base64;
-                // console.log(event);
+               
             });
             res.json({
                 event:event,
