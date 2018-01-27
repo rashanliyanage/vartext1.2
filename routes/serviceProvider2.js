@@ -256,7 +256,7 @@ router.post('/submitAbout',function(req,res){
 
 router.post('/getEditAbout',function(req,res){
     console.log('get edit about');
-    console.log(req.body.userId);
+    console.log('here is ger about id'+req.body.userId);
 getEditAbout(req.body.userId,res);
     
 

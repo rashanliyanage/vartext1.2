@@ -5,7 +5,7 @@ const config =require('../config/user');
 var userSchema = mongoose.Schema(
     {  
         password:{type:String},
-        eventname:{type:String},
+        eventname:{type:String,unique: true},
         Date:{type:String},
         location:{type:String},
         pass:{type:String},

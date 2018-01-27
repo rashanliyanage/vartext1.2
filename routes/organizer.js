@@ -63,6 +63,33 @@ function base64_encode(file) {  //read imge file
     return new Buffer(bitmap).toString('base64');
 }
 
+router.get('/getpublicevent',function(req,res){
+
+
+    Event.find({eventType:'public'},'BroadcastEvent eventlocation',function(err,event){
+
+         
+          //  console.log(event);
+            event.forEach(function(event){
+
+                console.log(event.BroadcastEvent.eventPictureUrl)
+                var base64 =base64_encode(event.BroadcastEvent.eventPictureUrl);
+                event.BroadcastEvent.eventPictureUrl =base64;
+                // console.log(event);
+            });
+            res.json({
+                event:event,
+            
+
+            });
+
+    })
+
+
+
+
+
+});
 
 
 router.post('/email',function(req,res){
@@ -224,47 +251,7 @@ var existOrganizerArray =[];
             }else{
                 console.log('success delete array');
 
-               
-              
-
-                        
-                                    var arry;   
-                                event.organizer.forEach(function(organizer){
-                                    User.findById({_id:organizer},function(err,user){
-                                            if(err){
-                
-                                                console.log('error get organizer');
-                                            }else{
-                
-                                                var base64 =base64_encode(user.profileData.profileurl)
-                                                var name =user.firstname +' '+ user.lastname;
-                                                var id =user._id;
-                                                var imgUrl =user.imgurl;
-                                               
-                                                
-                
-                                                var objc = new organizerdetailArray(id,name);
-                                                //console.log(objc);
-                                               //saveInArray(base64,name,id);
-                                               
-                                              saveInArray(objc);
-                                               
-                
-                                            }
-                
-                
-                                    });
-                
-                                });
-                                console.log('final array'+existOrganizerArray);           
-
-                          
-
-               
-                   
-             
-                
-                existOrganizerArray.length =0;
+        
             }
 
 
@@ -274,17 +261,7 @@ var existOrganizerArray =[];
 
     });
 
-     var saveInArray =function(objct){
-        putInTOArray(objct)
-
-     }
-     
-     var putInTOArray =function(obj){
-
-        existOrganizerArray.push(obj);
-        console.log( existOrganizerArray);
-
-     }
+   
 
 router.post('/createvent2',upload.array("uploads[]","id", 12),function(req,res){
     var newEvent = new Event();
@@ -1192,10 +1169,11 @@ router.post('/loginchat', function (req, res) {
     });
     
 ////////////////////////////////////////
-    var organizerObj = function (name, id, pic) {
+    var organizerObj = function (name, id, pic,sptype) {
         this.name = name;
         this.id = id;
         this.profilepic = pic;
+        this. sptype  = sptype ;
     }
     var organizerArray = [];
 
@@ -1275,7 +1253,8 @@ router.post('/loginchat', function (req, res) {
                     var name =  serviceprovider.firstname + ' ' +  serviceprovider.lastname;
                     var id = serviceprovider.id;
                     var pic = base64str;
-                    var  serviceprovider = new organizerObj(name, id, pic);
+                    var sptype =serviceprovider.spCatagory;
+                    var  serviceprovider = new organizerObj(name, id, pic,sptype);
                     organizerArray.push( serviceprovider);
                     }
                     //console.log(organizer);
