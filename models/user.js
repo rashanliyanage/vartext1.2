@@ -1,3 +1,5 @@
+
+
 const mongoose = require('mongoose');
 const bcrypt =require('bcryptjs');
 const config =require('../config/user');
@@ -18,19 +20,21 @@ var userSchema = mongoose.Schema(
             addedevent:String,
             addedorganizer:String,
             date:Date,
-
-
         }],
+        adz:[{
+            adzname:{type:String},
+            priceforservice:{type:String},
+            adzdescription:{type:String},
+            contactnumbers:{type:String},
+            adzpicurl: {type:String},
+            picurl: {type:String}
+        }]
+        ,
         profileData:{
             profileurl:{type: String},
             coverurl:{type:String},
             advertiesment:[],
-            myevent:{
-                eventname:[],
-                eventdiscription:[],
-                eventtheamurl:[],
             
-            }
         },
         aboutDetail:{
                     name:{type:String},

@@ -64,6 +64,8 @@ function base64_encode(file) {  //read imge file
 }
 
 
+
+
 router.post('/getaddedorganizsers',function(req,res){
     console.log('in the get added orgnizer');
     var eventId  = req.body.eventId;
@@ -84,13 +86,41 @@ router.post('/getaddedorganizsers',function(req,res){
     });
 })
 
+router.post('/submitparticipent',function(req,res){
+        var  email = req.body.email;
+        var phonenumber =req.body.phonenumber;
+        var name =req.body.name;
+        var eventid =req.body.eventid;
+
+        Event.findByIdAndUpdate({_id:eventid},{$push:{ participent:{
+
+            participentemail:email,
+            participentname:name,
+            participentphonenumber:phonenumber
+
+        }}},function(err,participent){
+            if(err){
+
+                res.statusCode =500;
+            }else{
+
+                res.statusCode =200;
+                res.json({
+                    succes:true
+
+                });
+            }
+        });
+
+});
+
 router.get('/getpublicevent',function(req,res){
 
 
     Event.find({eventType:'public'},'BroadcastEvent eventlocation',function(err,event){
 
          
-          //  console.log(event);
+           console.log(event);
             event.forEach(function(event){
 
                 console.log(event.BroadcastEvent.eventPictureUrl)
@@ -100,7 +130,7 @@ router.get('/getpublicevent',function(req,res){
             });
             res.json({
                 event:event,
-            
+                id:event._id
 
             });
 

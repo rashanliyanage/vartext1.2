@@ -31,7 +31,16 @@ var userSchema = mongoose.Schema(
 
 
 
+        },
+        participent:[{
+            participentemail:{type:String},
+            participentname:{type:String},
+            participentphonenumber:{type:String}
+
         }
+
+            
+        ]
         
         
 

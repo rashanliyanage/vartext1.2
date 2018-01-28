@@ -9,7 +9,7 @@ var userDetail =require('./users');
 var multer = require('multer');
 var  fs =require('fs');
 var path2;
-
+var path4;
 
 var eventTheame =[];
 var eventName =[];
@@ -23,6 +23,7 @@ var storage = multer.diskStorage({
         cb(null, file.originalname);
         //console.log('origina'+file.originalname);
         var path1 =   './routes/Add/' + file.originalname;
+        path4 =  'http://192.168.1.101:3000/Add/'+ file.originalname;
      
        console.log(path1);
         
@@ -259,6 +260,90 @@ router.post('/getEditAbout',function(req,res){
     console.log('here is ger about id'+req.body.userId);
 getEditAbout(req.body.userId,res);
     
+
+
+});
+var  eventadz =function(adzname,priceforservice,adzdescription,contactnumbers,adzpicurl){
+
+   this. adzname =adzname
+   this. priceforservice=priceforservice
+    this.adzdescription =adzdescription
+   this. contactnumbers =contactnumbers
+    this.adzpicurl=adzpicurl
+}
+
+
+
+////////////////
+router.post('/myeventupload',upload.array("uploads[]", 12),function(req,res){
+    var userId =req.body.userId;
+    var eventname =req.body.eventname;
+    var eventdiscription =req.body.eventdiscription;
+    var phonenumber =req.body.phonenumber;
+    var price =req.body.price;
+    
+    console.log(eventname);
+    console.log(userId);
+    console.log(eventdiscription);
+    console.log(phonenumber);
+    console.log(price);
+    
+    
+    User.findByIdAndUpdate({_id:userId},{$push:{adz: {
+        priceforservice: price,
+        adzdescription: eventdiscription,
+        contactnumbers: phonenumber,
+        adzpicurl: path4,
+        adzname: eventname,
+        picurl:path2
+    
+    }}},function(err,user){
+    
+        if(err){
+            throw err
+        }else{
+    
+            console.log('succes');
+        }
+    });
+    });
+
+
+
+/////
+router.post('/getmyevent',function(req,res){
+console.log('in my event');
+console.log(req.body.UserId);
+
+
+User.findById({_id:req.body.UserId},'adz',function(err,adz){
+    if(err){
+        console.log('eror get ');
+res.statusCode =500;
+res.json({
+    success:false
+
+});
+
+
+    }else{
+       
+        adz.adz.forEach(element => {
+            
+            var base64 =base64_encode(element.picurl);
+            element.picurl =base64;
+        });
+    res.statusCode =200;
+        res.json({
+
+            adz:adz
+        });
+
+        console.log('succefully get my event');
+    }
+
+
+});
 
 
 });
