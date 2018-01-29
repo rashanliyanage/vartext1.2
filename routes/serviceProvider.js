@@ -194,6 +194,54 @@ router.post('/getsearchserviceproviders',function(req,res){
     });
 
 
+    router.post('/addserviceproviers',function(req,res){
+        var organizername= req.body.organizerName;
+        var organizerId = req.body.organizerId;
+        var eventId  = req.body.eventId;
+    
+        Event.findOneAndUpdate({_id:eventId},{$addToSet:{servieceProvider:organizerId}},function(err, user){
+            if (err) {
+                res.json({status: 0, msg: err});
+            }else{
+             res.json({msg:"success"});
+             }
+    
+        });
+    });
+
+
+
+    router.post('/getaddserviceproviders',function(req,res){
+        var eventId  = req.body.eventId;
+       
+        Event.findById({_id:eventId}).populate('servieceProvider', 'firstname lastname _id imgurl spCatagory').exec(function(err,event){
+            if (err) {
+                res.json({status: 0, msg: err});
+            }else{
+               
+                res.json({"organizers": event.servieceProvider});             
+                }
+        });
+    });
+
+
+    router.post('/deletesupplierproviders', function(req,res){
+        var eventId = req.body.eventId;
+        var organizerId = req.body.organizerid;
+    
+        Event.findOneAndUpdate({_id:eventId},
+        {$pull:{servieceProvider:organizerId}},
+        function(err, user) { 
+            if (err) {
+                res.json({status: 0, msg: err});
+            }else{  
+             res.json({msg:"success"});
+             }
+    
+        });
+    
+    });
+
     router.post('/getAdd',function(req,res){
         console.log('in the getadd api');
         console.log('get all add '+req.body.userId);

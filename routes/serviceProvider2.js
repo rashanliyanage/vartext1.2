@@ -302,7 +302,11 @@ router.post('/myeventupload',upload.array("uploads[]", 12),function(req,res){
         if(err){
             throw err
         }else{
-    
+                res.json({
+
+                    success:true
+
+                });
             console.log('succes');
         }
     });

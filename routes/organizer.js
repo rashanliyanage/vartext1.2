@@ -1031,7 +1031,7 @@ router.post('/getnotification', function (req, res) {
         
                 } else {
                     console.log('in noti arry');
-                    if( result.notification.length !=0){
+                    if( result.notification !=undefined){
         
                     for (var i = 0; i < result.notification.length; i++) {
                         var addedevent = result.notification[i].addedevent;
