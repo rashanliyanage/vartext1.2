@@ -32,7 +32,7 @@ console.log('in the register');
                   newUser.email = email;
                   newUser.password =password;
                   newUser.usertype = usertype;
-                  newUser.imgurl ="http://10.10.28.104:3000/profile/newUser.png";
+                  newUser.imgurl ="http://10.10.17.16:3000/profile/newUser.png";
             }else if(req.body.usertype=='service_provider'){
     
                 var firstname =req.body.firstname; 
@@ -50,7 +50,7 @@ console.log('in the register');
                 newUser.password =password;
                 newUser.usertype = usertype;
                 newUser.spCatagory =spCatagory;
-                newUser.imgurl ="http://10.10.28.104:3000/profile/newUser.png";
+                newUser.imgurl ="http://10.10.17.16:3000/profile/newUser.png";
             }
             
             User.addUser(newUser,function(err,user){
@@ -137,8 +137,67 @@ router.post('/authenticate',function(req,res,next){
     }
 
 });
+router.post('/loginorganizer',function(req,res,next){
+    // console.log('in the api');
+         const email =req.body.email;
+        
+         const password = req.body.password;
+         console.log(password);
+         if(!email|| !password){
+             console.log('hii');
+                   res.statusCode =404;
+                   res.json({
+                     "status":"not found error",
+                     "msg":"some feeld are not filled"
+                   });
+             
+                  }else{ 
+                     
+                     User.getUserByEmail(email,function(err,user){
+            console.log(user);
+             if(err){
+                 throw err;
+             }
+              if(!user){
+         
+                 res.json({
+                     success:false,
+                     msg:'user not found'
+ 
+                 });
+             }
+            else { User.comparePassword(password,user.password,function(err,isMatch){
+ 
+                 if(err){throw err}
+                 if(isMatch){ 
+ 
+                     const token =jwt.sign({data:user},config.secret,{
+                         expiresIn:604800// 1 week
+                     });
+                     res.json({
+                         msg:"success",  
+                         imgurl:user.imgurl,
+                         id:user._id,
+                         fname:user.firstname,
+                         lname:user.lastname
+ 
+                     });
+                    
+                 }else{
+                     return res.json({success:false,msg:'wrong password'});
+ 
+                 }
+             });
+         }
+         });
+     }
+ 
+ });
+ ///////////////////////////////////////////////////
 
-router.post('/login',function(req,res,next){
+
+
+router.post('/loginsupplier',function(req,res,next){
     console.log('in the api');
         const email =req.body.email;
        
@@ -149,12 +208,12 @@ router.post('/login',function(req,res,next){
                   res.statusCode =404;
                   res.json({
                     "status":"not found error",
-                    "message":"some feeld are not filled"
+                    "msg":"some feeld are not filled"
                   });
             
                  }else{ 
                     
-                    User.getUserByEmail(email,function(err,user){
+                    User.getUserByEmailSupplier(email,function(err,user){
            console.log(user);
             if(err){
                 throw err;
@@ -163,7 +222,7 @@ router.post('/login',function(req,res,next){
         
                 res.json({
                     success:false,
-                    message:'user not found'
+                    msg:'user not found'
 
                 });
             }
@@ -185,7 +244,7 @@ router.post('/login',function(req,res,next){
                     });
                    
                 }else{
-                    return res.json({success:false,message:'wrong password'});
+                    return res.json({success:false,msg:'wrong password'});
 
                 }
             });

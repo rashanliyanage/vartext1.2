@@ -12,6 +12,7 @@ var path2;
 var imagesPath=[];
 var images =[];
 var i=0;
+var path4;
 
 
 
@@ -42,6 +43,115 @@ var storage = multer.diskStorage({
             // convert binary data to base64 encoded string
             return new Buffer(bitmap).toString('base64');
             }
+
+
+            /////////////////////////////////////////////////////
+            var StorageForAdz = multer.diskStorage({
+                destination: function(req, file, callback) {
+                    callback(null, "./routes/Add/");
+                },
+                filename: function(req, file, callback) {
+                    callback(null,file.originalname);
+                    path3 =  'http://10.10.17.16:3000/Add/'+ file.originalname;
+                    path4 = './routes/Add/' + file.originalname;
+                    console.log('path'+path3);
+                }
+              });
+        
+              
+              var uploadAdzPhoto = multer({
+                storage: StorageForAdz
+              }).array("adzPic", 5);
+//////////////////////////////////////////////////////
+
+router.post('/createadzforsupplier',function(req,res){
+    
+        uploadAdzPhoto(req, res, function(err){
+            var id = req.body.id;
+
+            if (err) {
+                res.json({status: 0, message: err});
+            }else{
+
+            User.findOneAndUpdate({_id:id},{
+                
+                $push:{adz:{
+                    adzname :req.body.adzname,
+                    priceforservice :req.body.priceforservice,
+                    adzdescription :req.body.adzdescription,
+                    contactnumbers :req.body.contactnumbers ,
+                    adzpicurl:path3,
+                    picurl:path4
+                    
+                 } }
+            }, function(err, user) { 
+                if (err) {
+                    res.json({status: 0, msg: err});
+                }else{  
+                 res.json({msg:"success",
+                 imgurl: user.imgurl,
+                 id:user._id,
+                 fname:user.firstname});
+                 }
+        
+            });
+        }
+        });     
+});
+
+
+///////////////////////////////////////////////
+
+
+router.post('/getadzdata',function(req,res){
+    var id = req.body.id;
+    User.findOne({_id:id}, function(err, user){
+        if (err) {
+            res.json({status: 0, msg: err});
+        }else{
+            
+         res.json({"adz":user.adz});
+         }
+    });
+});
+
+///////////////////////////////////
+
+router.post('/selecteduser',function(req,res){
+    var id = req.body.id;
+    User.findOne({_id:id},function(err,user){
+        if(err){
+            throw err;
+        }else{
+            res.json({
+                msg:"success",  
+                id:user._id,
+                fname:user.firstname,
+                lname:user.lastname,
+                imgurl:user.imgurl
+            });
+        }
+    });
+});
+
+///////////////////////////////////////
+
+router.post('/getsearchserviceproviders',function(req,res){
+    var spType = req.body.eventId;
+    User.find({spCatagory:spType,usertype:"service_provider"},function(err,user){
+        if(err){
+            throw err;
+        }else{
+            res.json({"users":user});
+        }
+    });
+});
+
+
+//////////////////////////////////////////
+
+
+
 
     router.post('/uploadAdd',upload.array("uploads[]", 12),function(req,res){
              

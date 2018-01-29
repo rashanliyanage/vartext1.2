@@ -29,7 +29,7 @@ var storage = multer.diskStorage({
         //console.log('origina'+file.originalname);
         var path1 = './routes/Add/' + file.originalname;
         path2 = path1;
-        path4 =  'http://192.168.1.101:3000/Add/'+ file.originalname;
+        path4 =  'http://10.10.17.16:3000/Add/'+ file.originalname;
         console.log(path2);
       
 
@@ -63,10 +63,39 @@ function base64_encode(file) {  //read imge file
     return new Buffer(bitmap).toString('base64');
 }
 
+router.post('/getparticipent',function(req,res){
+    console.log('in the get participent');
+
+var eventid =req.body.eventId;
+console.log('getparticipent id'+eventid);
+
+Event.findById({_id:eventid},"participent",function(err,participent){
+    if(err){
+
+        res.statusCode =500;
+        res.json({
+            succes:false
+
+
+        });
+
+    }else{
+        res.statusCode =200;
+        res.json({
+            participent:participent
+
+        });
+
+    }
+
+});
+
+
+});
 
 
 
-router.post('/getaddedorganizsers',function(req,res){
+router.post('/getaddedmyorganizsers',function(req,res){
     console.log('in the get added orgnizer');
     var eventId  = req.body.eventId;
     Event.findById({_id:eventId}).populate('organizer', 'firstname lastname _id profileData.profileurl').exec(function(err,event){
@@ -117,7 +146,7 @@ router.post('/submitparticipent',function(req,res){
 router.get('/getpublicevent',function(req,res){
 
 
-    Event.find({eventType:'public'},'BroadcastEvent eventlocation',function(err,event){
+    Event.find({eventType:'Public'},'BroadcastEvent eventlocation',function(err,event){
 
          
            console.log(event);
@@ -284,6 +313,7 @@ this.name =name;
 }
 
 var existOrganizerArray =[];
+
     router.post('/deleteorganizer',function(req,res){
         console.log('in the delete organzer');
         
@@ -312,6 +342,27 @@ var existOrganizerArray =[];
 
     });
 
+///////////////////////////////////////////
+
+router.post('/deleteorganizers', function(req,res){
+    var eventId = req.body.eventId;
+    var organizerId = req.body.organizerid;
+
+    Event.findOneAndUpdate({_id:eventId},
+    {$pull:{organizer:organizerId}},
+    function(err, user) { 
+        if (err) {
+            res.json({status: 0, msg: err});
+        }else{  
+         res.json({msg:"success"});
+         }
+
+    });
+
+});
+
+/////////////////////////////////////////
+
    
 
 router.post('/createvent2',upload.array("uploads[]","id", 12),function(req,res){
@@ -332,6 +383,8 @@ router.post('/createvent2',upload.array("uploads[]","id", 12),function(req,res){
                 newEvent.adminorganizer=req.body.id;
                 newEvent.password =hash;
                 newEvent.pass =password;
+                newEvent.eventlocation.lat ="6.9271";
+                newEvent.eventlocation.lng="79.8612";
                 newEvent.eventname =req.body.ename;
             
             
@@ -404,6 +457,95 @@ router.post('/geteventdata',function(req,res){
 
     });
 });
+//////////////////////////////////////
+router.post('/getadmineventdata',function(req,res){
+    var id = req.body.id;
+    console.log('in admin event');
+    Event.find({adminorganizer:id},"BroadcastEvent.eventname BroadcastEvent.eventDiscription BroadcastEvent.eventPictureUrl ", function(err, event){
+        if (err) {
+            res.json({status: 0, msg: err});
+        }else{
+            event.forEach(function(event){
+                if(event.BroadcastEvent.eventPictureUrl !=undefined||event.BroadcastEvent.eventPictureUrl !=null){
+                var base64 = base64_encode(event.BroadcastEvent.eventPictureUrl);
+                event.BroadcastEvent.eventPictureUrl =base64;
+
+                }
+
+
+            });
+
+
+          console.log('show event');  
+      
+         res.json({"events":event});
+         
+         }
+
+
+    });
+});
+
+////////////////////////////////////////////
+
+router.post('/addorgaizerseventview',function(req,res){
+    var organizerId = req.body.organizerId;
+    Event.find({organizer:{$elemMatch:{$eq:organizerId}}},function(err,event){
+        if(err){
+            throw err;
+        }else{
+            res.json({"events":event});
+        }
+    });
+
+});
+/////////////////////////////////
+router.post('/addorgaizersubevent',function(req,res){
+    var organizerId = req.body.id;
+    Event.find({organizer:{$elemMatch:{$eq:organizerId}}},"BroadcastEvent",function(err,event){
+        if(err){
+            throw err;
+        }else{
+
+            event.forEach(function(event){
+                if(event.BroadcastEvent.eventPictureUrl !=undefined||event.BroadcastEvent.eventPictureUrl !=null){
+                var base64 = base64_encode(event.BroadcastEvent.eventPictureUrl);
+                event.BroadcastEvent.eventPictureUrl =base64;
+
+                }
+
+
+            });
+            res.json({"events":event});
+            
+        }
+    });
+
+});
+//////////////////////////////////////
+
+router.post('/users', function(req,res){
+    var eventId = req.body.eventId;
+   Event.findOne({_id:eventId}).exec(function(err,event){
+    if(err){
+        throw err;
+    }else{
+        console.log(event.organizer);
+        User.find({_id:{ $nin:event.organizer},usertype:"organizer"}).exec(function(err,user){
+            if(err){
+                throw err;
+            }
+            else{
+                res.json({"users":user});  
+            }
+
+        });
+    }
+   });
+});
+
+
+//////////////////////////////////////////
 
 
 router.post('/addedorganizsers',function(req,res){
@@ -421,35 +563,93 @@ router.post('/addedorganizsers',function(req,res){
     });
 });
 
+////////////////////////////////////////////
+router.get('/geteventsdataforhome',function(req,res){
+    Event.find({eventType:"Public"},function(err,event){
+        if(err){
+            throw err;
+        }else{
+            res.json({"events":event});
+        }
+    });
+});
+////////////////////////////////////
+
+
+router.post('/selecteduser', function(req,res){
+    var id = req.body.id;
+    User.findOne({_id:id},function(err, user) {
+        if (err) {throw err;}
+        else{
+            res.json({msg:"success",
+                      id:user.id,
+                      fname:user.fname,
+                      lname:user.lname,
+                      imgurl:user.imgurl
+                    });
+        }
+      });
+});
+///////////////////////////////////////
+// router.post('/getaddedorganizsers',function(req,res){
+//     var eventId  = req.body.eventId;
+//     var oranizersArray = [];
+
+//     Event.find({_id:eventId},function(err,event){
+//         if (err) {
+//             res.json({status: 0, msg: err});
+//         }else{
+//             event.organizer.forEach(function(oranizerid){
+//                 User.find({_id:event.organizer},function(err,user){
+//                     if(err){
+//                         throw err;
+                       
+//                     }else{
+//                         oranizersArray.push({"organizerid":user._id,"organizername":user.firstname+user.lastname});
+//                     }
+//                 });
+
+                
+//             });
+//          }
+        
+
+//     });
+// });
+
+
 
 router.post('/getaddedorganizsers',function(req,res){
     var eventId  = req.body.eventId;
-    var oranizersArray = [];
-
-    Event.find({_id:eventId},function(err,event){
+    Event.findById({_id:eventId}).populate('organizer', 'firstname lastname _id imgurl').exec(function(err,event){
         if (err) {
             res.json({status: 0, msg: err});
         }else{
-            event.organizer.forEach(function(oranizerid){
-                User.find({_id:event.organizer},function(err,user){
-                    if(err){
-                        throw err;
-                       
-                    }else{
-                        oranizersArray.push({"organizerid":user._id,"organizername":user.firstname+user.lastname});
-                    }
-                });
 
-                
-            });
+            res.json({"organizers" : event.organizer});             
+            }
+    });
+    
+})
+/////////////////////////////////////////////////
+router.post('/addedorganizsers',function(req,res){
+    var organizername= req.body.organizerName;
+    var organizerId = req.body.organizerId;
+    var eventId  = req.body.eventId;
+
+    Event.findOneAndUpdate({_id:eventId},{$addToSet:{organizer:organizerId}},function(err, user){
+        if (err) {
+            res.json({status: 0, msg: err});
+        }else{
+         res.json({msg:"success"});
          }
-        
+
 
     });
 });
 
 
-
+///////////////////////////////
 
 
 
@@ -497,7 +697,7 @@ router.post('/addServieceProvider',function(req,res){
 
 });
 });
-
+/////////////////////////////////////
 var  sendEmailToServiceProvider =function(id,eventid,senderemail,password,res){
     console.log('in the send email api');
 
@@ -574,6 +774,8 @@ console.log(event.pass);
 
 
                 }
+
+ //////////////////////////////////////////////////////////               
 router.post('/addorganizers', function (req, res) {
     console.log('in the add organizer');
 
@@ -599,7 +801,7 @@ router.post('/addorganizers', function (req, res) {
 
         } else {
 
-            generateAddNotification(addOrganizer, id, result.eventname, eventid);
+            generateAddNotification(addOrganizer, id, result.eventname, eventid,result.pass);
             console.log('success add');
             res.statusCode = 200;
             res.json({
@@ -622,7 +824,7 @@ var notificationObject = function (notification, addedevent, date, addedorganize
     this.addedorganizer = addedorganizer;
 }
 
-var generateAddNotification = function (addOrganizerId, selectedorganizerId, eventname, addedeventaId) {
+var generateAddNotification = function (addOrganizerId, selectedorganizerId, eventname, addedeventaId, password) {
 
     console.log('create noti');
     User.findById({ _id: addOrganizerId }, function (err, result) {
@@ -633,7 +835,7 @@ var generateAddNotification = function (addOrganizerId, selectedorganizerId, eve
 
         } else {
 
-            var notification = 'you are added by' + result.firstname + ' ' + result.lastname + ' ' + 'to' + ' ' + eventname + ' ' + 'event';
+            var notification = 'you are added by' +' '+ result.firstname + ' ' + result.lastname + ' ' + 'to' + ' ' + eventname + '  ' + 'event'+' '+'log to event use eventname->'+' ' +eventname+' '+'password->'+' '+password;
             console.log(notification);
             var newNotifictionObj = new notificationObject();
             var datetime = new Date();

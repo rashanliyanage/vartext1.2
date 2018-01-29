@@ -25,7 +25,7 @@ var storage = multer.diskStorage({
         cb(null, file.originalname);
         //console.log('origina'+file.originalname);
         var path1 =   './routes/Add/' + file.originalname;
-     path4   = 'http://192.168.1.101:3000/Add/'+ file.originalname;
+     path4   = 'http://10.10.17.16:3000/Add/'+ file.originalname;
      
        
         
