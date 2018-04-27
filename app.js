@@ -9,6 +9,7 @@ var organizer =require('./routes/organizer');
 var users = require('./routes/users');
 var app = express();
 var config =require('./config/user');
+var rating = require('./routes/rating');
 var userProfile =require('./routes/userProfile');
 var serviceProviderPage_1=require('./routes/serviceProvider');
 var serviceProviderPage_2 =require('./routes/serviceProvider2');
@@ -35,6 +36,7 @@ app.use('/api/profile',userProfile);
 app.use('/api/add/',serviceProviderPage_1.router);
 app.use('/api/add_2/',serviceProviderPage_2.router2);
 app.use('/api/event/',organizer.router);
+app.use('/api/rate/',rating.router);
 
 
 app.listen(port,function(){

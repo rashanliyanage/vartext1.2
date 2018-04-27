@@ -65,7 +65,14 @@ var userSchema = mongoose.Schema(
 
  };
  module.exports.getUserByEmail = function(email,callback){
-    const query = {email:email};   
+    const query = {email:email,usertype:"organizer"};   
+    User.findOne(query,callback);
+
+ };
+
+
+ module.exports.getUserByEmailSupplier = function(email,callback){
+    const query = {email:email,usertype:"service_provider"};   
     User.findOne(query,callback);
 
  };

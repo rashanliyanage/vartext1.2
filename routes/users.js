@@ -32,7 +32,7 @@ console.log('in the register');
                   newUser.email = email;
                   newUser.password =password;
                   newUser.usertype = usertype;
-                  newUser.imgurl ="http://10.10.17.16:3000/profile/newUser.png";
+                  newUser.imgurl ="http://192.168.8.100:3000/Add/newUser.png";
             }else if(req.body.usertype=='service_provider'){
     
                 var firstname =req.body.firstname; 
@@ -50,7 +50,7 @@ console.log('in the register');
                 newUser.password =password;
                 newUser.usertype = usertype;
                 newUser.spCatagory =spCatagory;
-                newUser.imgurl ="http://10.10.17.16:3000/profile/newUser.png";
+                newUser.imgurl ="http://192.168.8.100:3000/Add/newUser.png";
             }
             
             User.addUser(newUser,function(err,user){
@@ -75,7 +75,7 @@ console.log('in the register');
 
 });
 
-
+//web login
 
 router.post('/authenticate',function(req,res,next){
     console.log('in the api');

@@ -29,7 +29,7 @@ var storage = multer.diskStorage({
         //console.log('origina'+file.originalname);
         var path1 = './routes/Add/' + file.originalname;
         path2 = path1;
-        path4 =  'http://10.10.17.16:3000/Add/'+ file.originalname;
+        path4 =  'http://192.168.8.100:3000/Add/'+ file.originalname;
         console.log(path2);
       
 
@@ -548,20 +548,6 @@ router.post('/users', function(req,res){
 //////////////////////////////////////////
 
 
-router.post('/addedorganizsers',function(req,res){
-    var organizerId = req.body.organizerId;
-    var eventId  = req.body.eventId;
-
-    Event.findOneAndUpdate({_id:eventId},{$set:{organizer:organizerId}},function(err, user){
-        if (err) {
-            res.json({status: 0, msg: err});
-        }else{
-         res.json({msg:"success"});
-         }
-
-
-    });
-});
 
 ////////////////////////////////////////////
 router.get('/geteventsdataforhome',function(req,res){
@@ -633,14 +619,18 @@ router.post('/getaddedorganizsers',function(req,res){
 })
 /////////////////////////////////////////////////
 router.post('/addedorganizsers',function(req,res){
+    console.log("in nipun");
     var organizername= req.body.organizerName;
     var organizerId = req.body.organizerId;
     var eventId  = req.body.eventId;
+    var addOrganizer =req.body.userId;
+    console.log("here"+addOrganizer);
 
     Event.findOneAndUpdate({_id:eventId},{$addToSet:{organizer:organizerId}},function(err, user){
         if (err) {
             res.json({status: 0, msg: err});
         }else{
+            generateAddNotification(addOrganizer, organizerId, user.eventname, eventId,user.pass);
          res.json({msg:"success"});
          }
 
@@ -784,7 +774,7 @@ router.post('/addorganizers', function (req, res) {
     var addOrganizer = req.body.addeduser;
     console.log(id);
     Event.findByIdAndUpdate({ _id: eventid }, { $addToSet: { 'organizer': id } }, function (err, result) {
-
+//to add to the array without duplicates(addToSet)
 
         if (err) {
 
@@ -832,7 +822,7 @@ var generateAddNotification = function (addOrganizerId, selectedorganizerId, eve
         if (err) {
 
             console.log('server err in noti api');
-
+7
         } else {
 
             var notification = 'you are added by' +' '+ result.firstname + ' ' + result.lastname + ' ' + 'to' + ' ' + eventname + '  ' + 'event'+' '+'log to event use eventname->'+' ' +eventname+' '+'password->'+' '+password;
@@ -1084,13 +1074,14 @@ router.post('/getnotification', function (req, res) {
 });
 
 
-
+//when the API_register called
 router.post('/registerEvent', function (req, res) {
 
     var eventname = req.body.eventname;
     var password = req.body.password;
     var eventtype = req.body.eventtype.eventType;
     var password_2;
+    var userId =req.body.createdUserId;
     console.log('in register event');
     console.log(password);
     console.log(eventname);
@@ -1105,7 +1096,7 @@ router.post('/registerEvent', function (req, res) {
                 newEvent.pass =password;
                 newEvent.eventname = eventname;
                 newEvent.eventtype = eventtype;
-                newEvent.adminorganizer = userDetail.userdetail.id;
+                newEvent.adminorganizer = userId;
                 console.log(password_2);
 
             }
@@ -1227,7 +1218,7 @@ router.post('/login', function (req, res) {
                                 success: true,
                                 message: "successfully loging",
                                 eventname: event.eventname,
-                                eventid: event._id
+                                eventid: event._id//send response 
                             });
 
 
@@ -1247,7 +1238,7 @@ router.post('/login', function (req, res) {
 
 
 
-                        }else {
+                        }else {//ismember=false
                             res.statusCode = 200;
                             res.json({
                                 success:400,

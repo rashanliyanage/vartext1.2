@@ -7,6 +7,7 @@ var User =require('../models/user');
 var userDetail =require('./users');
 var multer = require('multer');
 var  fs =require('fs');
+var Event = require('../models/eventSchema');
 
 var path2;
 var imagesPath=[];
@@ -52,7 +53,7 @@ var storage = multer.diskStorage({
                 },
                 filename: function(req, file, callback) {
                     callback(null,file.originalname);
-                    path3 =  'http://10.10.17.16:3000/Add/'+ file.originalname;
+                    path3 =  'http://192.168.8.100:3000/Add/'+ file.originalname;
                     path4 = './routes/Add/' + file.originalname;
                     console.log('path'+path3);
                 }
